@@ -1,9 +1,6 @@
 //
 //  ECElevatorSim.h
-//  
 //
-//  Created by Yufeng Wu on 6/27/23.
-//  Elevator simulation
 
 #ifndef ECElevatorSim_h
 #define ECElevatorSim_h
