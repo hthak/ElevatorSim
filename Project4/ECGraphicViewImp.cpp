@@ -168,6 +168,12 @@ void ECGraphicViewImp::Init()
         cout << "failed to create timer!\n";
         exit(-1);
     }
+    if (!al_init_image_addon())
+    {
+        cout << "failed to create Allegro image addon!\n";
+        exit(-1);
+    }
+
     // create the display
     display = al_create_display(widthView, heightView);
     if (!display) {

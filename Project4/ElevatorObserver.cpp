@@ -58,6 +58,18 @@ void ECElevatorObserver::Update()
 void ECElevatorObserver::DrawElevator()
 {
     view.DrawFilledRectangle(0, 0, view.GetWidth(), view.GetHeight(), ECGV_LIGHT_BLUE); //draws rectangle over everything to clear the screen white
+    ALLEGRO_BITMAP* elevatorImageBack = al_load_bitmap("elevator_back.png");
+    if (elevatorImageBack)
+    {
+        int imgWidth = al_get_bitmap_width(elevatorImageBack);
+        int imgHeight = al_get_bitmap_height(elevatorImageBack);
+
+        al_draw_scaled_bitmap(elevatorImageBack, 0, 0, imgWidth, imgHeight, 0, 0, view.GetWidth(), view.GetHeight(), 0);
+    }
+    else
+    {
+        std::cout << "Failed to draw elevator_back.png image!" << std::endl;
+    }
 
     // Elevator chamber drawing
     view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_SILVER); //draw filled rectangle to represent floor 1 elevator

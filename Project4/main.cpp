@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     const std::vector<ECElevatorState>& allStates = sim.GetAllStates();
 
     //part 2 code: create view
-    ECGraphicViewImp view(1200, 1000);
+    ECGraphicViewImp view(800, 1100);
 
     //use new code to feed states to frontend
     ECElevatorObserver elevator(view, numFloors, allStates, lenSim);
