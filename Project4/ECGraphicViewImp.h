@@ -66,7 +66,10 @@ enum ECGVColor
     ECGV_YELLOW = 5,    // red + green
     ECGV_PURPLE = 6,    // red+blue
     ECGV_CYAN = 7,      // blue+green,
-    ECGV_NONE = 8,
+    ECGV_LIGHT_BLUE = 8,
+    ECGV_SILVER = 9,
+    ECGV_MIGNIGHT_PURPLE,
+    ECGV_NONE = 10,
     ECGV_NUM_COLORS
 };
 

@@ -57,10 +57,10 @@ void ECElevatorObserver::Update()
 //visually draw the elevator
 void ECElevatorObserver::DrawElevator()
 {
-    view.DrawFilledRectangle(0, 0, view.GetWidth(), view.GetHeight(), ECGV_YELLOW); //draws rectangle over everything to clear the screen white
+    view.DrawFilledRectangle(0, 0, view.GetWidth(), view.GetHeight(), ECGV_LIGHT_BLUE); //draws rectangle over everything to clear the screen white
 
     // Elevator chamber drawing
-    view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_WHITE); //draw filled rectangle to represent floor 1 elevator
+    view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_SILVER); //draw filled rectangle to represent floor 1 elevator
     view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 3, ECGV_BLACK); //draw big verticle box
 
     // Draw floor lines and triangles for buttons
@@ -83,7 +83,7 @@ void ECElevatorObserver::DrawElevator()
     cabinY = (int)(prevY + (nextY - prevY) * t);
 
     //drawing cabin
-    view.DrawFilledRectangle(cabinX - 50, cabinY, cabinX + 50, cabinY + floorHeight, ECGV_PURPLE);
+    view.DrawFilledRectangle(cabinX - 50, cabinY, cabinX + 50, cabinY + floorHeight, ECGV_MIGNIGHT_PURPLE);
 
     //get current state at current time
     const ECElevatorState& st = states[currentSimTime];
