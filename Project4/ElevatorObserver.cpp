@@ -83,7 +83,7 @@ void ECElevatorObserver::DrawElevator()
     cabinY = (int)(prevY + (nextY - prevY) * t);
 
     //drawing cabin
-    view.DrawFilledRectangle(cabinX - 50, cabinY, cabinX + 50, cabinY + floorHeight, ECGV_MIGNIGHT_PURPLE);
+    view.DrawFilledRectangle(cabinX - 50, cabinY, cabinX + 50, cabinY + floorHeight, ECGV_MIDNIGHT_PURPLE);
 
     //get current state at current time
     const ECElevatorState& st = states[currentSimTime];
@@ -122,7 +122,7 @@ void ECElevatorObserver::DrawTimeAndProgressBar()
     view.DrawRectangle(barX, barY, barX + barWidth, barY + barHeight, 2, ECGV_BLACK);
     double prog = double(currentSimTime) / double(lenSim - 1);
     int filledWidth = int(prog * barWidth);
-    view.DrawFilledRectangle(barX, barY, barX + filledWidth, barY + barHeight, ECGV_BLUE);
+    view.DrawFilledRectangle(barX, barY, barX + filledWidth, barY + barHeight, ECGV_OLIVE_GREEN);
 }
 
 void ECElevatorObserver::DrawWaitingPassengers(const ECElevatorState& st)

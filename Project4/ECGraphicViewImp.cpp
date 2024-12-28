@@ -28,8 +28,8 @@ ALLEGRO_COLOR arrayAllegroColors[ECGV_NUM_COLORS] =
     al_map_rgb_f(0,255,255),
     al_map_rgb(173, 216, 230),
     al_map_rgb(210, 210, 210),
-    //al_map_rgb(77, 81, 109)
-    al_map_rgb(68, 68, 68)
+    al_map_rgb(68, 68, 68),
+    al_map_rgb(107,142,35)
 };
 
 //***********************************************************
