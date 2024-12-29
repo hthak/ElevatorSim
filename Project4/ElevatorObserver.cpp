@@ -57,7 +57,7 @@ void ECElevatorObserver::Update()
 //visually draw the elevator
 void ECElevatorObserver::DrawElevator()
 {
-    view.DrawFilledRectangle(0, 0, view.GetWidth(), view.GetHeight(), ECGV_LIGHT_BLUE); //draws rectangle over everything to clear the screen white
+    //view.DrawFilledRectangle(0, 0, view.GetWidth(), view.GetHeight(), ECGV_LIGHT_BLUE); //draws rectangle over everything to clear the screen white
     ALLEGRO_BITMAP* elevatorImageBack = al_load_bitmap("elevator_back.png");
     if (elevatorImageBack)
     {
@@ -73,13 +73,13 @@ void ECElevatorObserver::DrawElevator()
 
     // Elevator chamber drawing
     view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_SILVER); //draw filled rectangle to represent floor 1 elevator
-    view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 3, ECGV_BLACK); //draw big verticle box
+    view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 5, ECGV_BLACK); //draw big verticle box
 
     // Draw floor lines and triangles for buttons
     for (int floor = 1; floor < numFloors; floor++)
     {
         int y = bottomFloorY - (floor - 1) * floorHeight; //get y pos of each line
-        view.DrawLine(view.GetWidth() / 2 - 100, y, view.GetWidth() / 2 + 100, y, 2, ECGV_BLACK); //draw shaft lines
+        view.DrawLine(view.GetWidth() / 2 - 100, y, view.GetWidth() / 2 + 100, y, 5, ECGV_BLACK); //draw shaft lines
     }
 
     //updates cabin position frame by frame
@@ -95,7 +95,22 @@ void ECElevatorObserver::DrawElevator()
     cabinY = (int)(prevY + (nextY - prevY) * t);
 
     //drawing cabin
-    view.DrawFilledRectangle(cabinX - 50, cabinY, cabinX + 50, cabinY + floorHeight, ECGV_MIDNIGHT_PURPLE);
+    //view.DrawFilledRectangle(cabinX - 50, cabinY, cabinX + 50, cabinY + floorHeight, ECGV_DARK_GREY);
+    ALLEGRO_BITMAP* elevatorImageCabin = al_load_bitmap("elevator_cabin.png");
+    if (elevatorImageCabin)
+    {
+        int imgWidth = al_get_bitmap_width(elevatorImageCabin);
+        int imgHeight = al_get_bitmap_height(elevatorImageCabin);
+
+        int cabinWidth = (cabinX + 50) - (cabinX - 50);
+        int cabinHeight = floorHeight;
+
+        al_draw_scaled_bitmap(elevatorImageCabin, 0, 0, imgWidth, imgHeight, cabinX - 99, cabinY + 1, cabinWidth + 97, cabinHeight - 3, 0);
+    }
+    else
+    {
+        std::cout << "Failed to draw elevator_cabin.png image!" << std::endl;
+    }
 
     //get current state at current time
     const ECElevatorState& st = states[currentSimTime];
