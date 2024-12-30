@@ -5,6 +5,8 @@
 #include "ECObserver.h"
 #include "ECGraphicViewImp.h"
 #include "ECElevatorSim.h"
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 class ECElevatorSim;
 
@@ -54,6 +56,10 @@ private:
     void DrawWaitingPassengers(const ECElevatorState& st);
     //void DrawOnboardPassengers(const ECElevatorState& st);
 
-    //bool isPointInTriangle(int px, int py, const Triangle& tri); //might need to remove now?
+    //bool isPointInTriangle(int px, int py, const Triangle& tri);
+
+    //music variables
+    ALLEGRO_SAMPLE* music;
+    ALLEGRO_SAMPLE_ID musicID;
 };
 #endif /* ElevatorObserver_h */

@@ -4,6 +4,8 @@
 #include <string>
 #include <cmath>
 #include <iostream>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 
 //waitingPassengers set to empty and number of floors
@@ -21,6 +23,16 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     cabinX = view.GetWidth() / 2;
     //elevatorPos = bottomFloorY;
     cabinY = bottomFloorY;
+
+    //load elevator music
+    music = al_load_sample("elevator_music.ogg");
+    if (!music)
+    {
+        std::cout << "Failed to load elevator_music.ogg music file!" << std::endl;
+    }
+
+    //play elevator music
+    al_play_sample(music, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &musicID);
 
     //draw initally by itself
     view.SetRedraw(true);

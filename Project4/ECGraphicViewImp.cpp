@@ -7,6 +7,8 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_ttf.h>
 #include <iostream>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 
 using namespace std;
@@ -171,6 +173,21 @@ void ECGraphicViewImp::Init()
     if (!al_init_image_addon())
     {
         cout << "failed to create Allegro image addon!\n";
+        exit(-1);
+    }
+    if (!al_install_audio())
+    {
+        cout << "failed to install Allegro audio system!" << endl;
+        exit(-1);
+    }
+    if (!al_init_acodec_addon())
+    {
+        cout << "failed to initialize audio codecs!" << endl;
+        exit(-1);
+    }
+    if (!al_reserve_samples(1))
+    {
+        cout << "failed to reserve audio samples!" << endl;
         exit(-1);
     }
 
