@@ -38,6 +38,15 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     view.SetRedraw(true);
 }
 
+ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in mem
+{
+    if (music)
+    {
+        al_stop_sample(&musicID);
+        al_destroy_sample(music);
+        music = nullptr;
+    }
+}
 
 //updates elevator based of key/button press
 void ECElevatorObserver::Update()
@@ -59,6 +68,10 @@ void ECElevatorObserver::Update()
                     currentFrame = 0;
                     currentSimTime++;
                 }
+            }
+            if (currentSimTime == lenSim - 1) //if simulation ended, stop music
+            {
+                al_stop_sample(&musicID);
             }
             view.SetRedraw(true);
         }

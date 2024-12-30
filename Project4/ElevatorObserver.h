@@ -16,6 +16,7 @@ class ECElevatorObserver : public ECObserver
 public:
     //take in view, numFloors, allStates = actions, lenSim = how long to run
     ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors, const std::vector<ECElevatorState>& allStates, int lenSim);
+    ~ECElevatorObserver();
 
     virtual void Update(); // What to do on update
 
