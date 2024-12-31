@@ -24,6 +24,20 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     //elevatorPos = bottomFloorY;
     cabinY = bottomFloorY;
 
+    //load elevator background image once in constructor
+    elevatorImageBack = al_load_bitmap("elevator_back.png");
+    if (!elevatorImageBack)
+    {
+        std::cout << "Failed to load elevator_back.png image!" << std::endl;
+    }
+
+    //load elevator cabin image once in constructor
+    elevatorImageCabin = al_load_bitmap("elevator_cabin.png");
+    if (!elevatorImageCabin)
+    {
+        std::cout << "Failed to load elevator_cabin.png image!" << std::endl;
+    }
+
     //load elevator music
     music = al_load_sample("elevator_music.ogg");
     if (!music)
@@ -56,6 +70,16 @@ ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in m
     {
         al_destroy_sample(dingSound);
         dingSound = nullptr;
+    }
+    if (elevatorImageBack)
+    {
+        al_destroy_bitmap(elevatorImageBack);
+        elevatorImageBack = nullptr;
+    }
+    if (elevatorImageCabin)
+    {
+        al_destroy_bitmap(elevatorImageCabin);
+        elevatorImageCabin = nullptr;
     }
 }
 
@@ -103,8 +127,6 @@ void ECElevatorObserver::Update()
 //visually draw the elevator
 void ECElevatorObserver::DrawElevator()
 {
-    //view.DrawFilledRectangle(0, 0, view.GetWidth(), view.GetHeight(), ECGV_LIGHT_BLUE); //draws rectangle over everything to clear the screen white
-    ALLEGRO_BITMAP* elevatorImageBack = al_load_bitmap("elevator_back.png");
     if (elevatorImageBack)
     {
         int imgWidth = al_get_bitmap_width(elevatorImageBack);
@@ -141,8 +163,6 @@ void ECElevatorObserver::DrawElevator()
     cabinY = (int)(prevY + (nextY - prevY) * t);
 
     //drawing cabin
-    //view.DrawFilledRectangle(cabinX - 50, cabinY, cabinX + 50, cabinY + floorHeight, ECGV_DARK_GREY);
-    ALLEGRO_BITMAP* elevatorImageCabin = al_load_bitmap("elevator_cabin.png");
     if (elevatorImageCabin)
     {
         int imgWidth = al_get_bitmap_width(elevatorImageCabin);

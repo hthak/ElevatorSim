@@ -55,13 +55,14 @@ private:
     void DrawElevator();
     void DrawTimeAndProgressBar();
     void DrawWaitingPassengers(const ECElevatorState& st);
-    //void DrawOnboardPassengers(const ECElevatorState& st);
-
-    //bool isPointInTriangle(int px, int py, const Triangle& tri);
 
     //music variables
     ALLEGRO_SAMPLE* music;
     ALLEGRO_SAMPLE* dingSound;
     ALLEGRO_SAMPLE_ID musicID;
+
+    //image variables
+    ALLEGRO_BITMAP* elevatorImageBack;
+    ALLEGRO_BITMAP* elevatorImageCabin;
 };
 #endif /* ElevatorObserver_h */
