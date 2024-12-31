@@ -39,14 +39,14 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     }
 
     //load elevator music
-    music = al_load_sample("elevator_music.ogg");
-    if (!music)
+    backgroundMusic = al_load_sample("elevator_music.ogg");
+    if (!backgroundMusic)
     {
         std::cout << "Failed to load elevator_music.ogg music file!" << std::endl;
     }
 
     //play elevator music
-    //al_play_sample(music, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &musicID);
+    al_play_sample(backgroundMusic, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &backgroundMusicID);
 
     dingSound = al_load_sample("ding.ogg");
     if (!dingSound)
@@ -60,11 +60,11 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
 
 ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in mem
 {
-    if (music)
+    if (backgroundMusic)
     {
-        al_stop_sample(&musicID);
-        al_destroy_sample(music);
-        music = nullptr;
+        al_stop_sample(&backgroundMusicID);
+        al_destroy_sample(backgroundMusic);
+        backgroundMusic = nullptr;
     }
     if (dingSound)
     {
@@ -94,30 +94,41 @@ void ECElevatorObserver::Update()
     }
     if (evt == ECGV_EV_TIMER) {
         if (!paused) {
-            // Advance animation frame
+            //advance animation frame
             if (currentSimTime < lenSim - 1)
             {
                 currentFrame++;
+                if (currentFrame == 1)
+                {
+                    //elevator ding sound logic
+                    const ECElevatorState& prevState = states[currentSimTime];
+                    const ECElevatorState& currState = states[currentSimTime + 1];
+                    bool wasMoving = (prevState.dir == EC_ELEVATOR_UP || prevState.dir == EC_ELEVATOR_DOWN);
+                    bool isStoppedNow = currState.dir == EC_ELEVATOR_STOPPED;
+                    if (wasMoving && isStoppedNow)
+                    {
+                        if (dingSound)
+                        {
+                            al_play_sample(dingSound, 0.8, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, nullptr);
+                            std::cout << "ding ding" << std::endl;
+                        }
+                    }
+                }
+                
+
                 if (currentFrame >= framesPerStep)
                 {
                     currentFrame = 0;
                     currentSimTime++;
                 }
             }
-            
-            const ECElevatorState& st = states[currentSimTime];
-            if (!st.waitingMap.count(st.floor) > 0 || !st.onboard.empty())
+
+            //stopping background music once elevator simulation time done
+            if (currentSimTime == lenSim - 1)
             {
-                if (dingSound)
-                {
-                    al_play_sample(dingSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, nullptr);
-                    std::cout << "Ding! We are stopping at floor: " << st.floor << std::endl;
-                }
+                al_stop_sample(&backgroundMusicID);
             }
-            if (currentSimTime == lenSim - 1) //if simulation ended, stop music
-            {
-                al_stop_sample(&musicID);
-            }
+
             view.SetRedraw(true);
         }
         DrawElevator();
@@ -139,9 +150,10 @@ void ECElevatorObserver::DrawElevator()
         std::cout << "Failed to draw elevator_back.png image!" << std::endl;
     }
 
-    // Elevator chamber drawing
-    view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_SILVER); //draw filled rectangle to represent floor 1 elevator
-    view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 5, ECGV_BLACK); //draw big verticle box
+    //draw filled rectangle for whole elevator shaft
+    view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_SILVER);
+    //draw elevator shaft border lines
+    view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 5, ECGV_BLACK);
 
     // Draw floor lines and triangles for buttons
     for (int floor = 1; floor < numFloors; floor++)
@@ -254,17 +266,3 @@ void ECElevatorObserver::DrawWaitingPassengers(const ECElevatorState& st)
         }
     }
 }
-
-/*bool ECElevatorObserver::isPointInTriangle(int px, int py, const Triangle& tri)
-{
-    auto area = [](int x1, int y1, int x2, int y2, int x3, int y3) {
-        return std::abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2));
-        };
-
-    int A = area(tri.x1, tri.y1, tri.x2, tri.y2, tri.x3, tri.y3);
-    int A1 = area(px, py, tri.x2, tri.y2, tri.x3, tri.y3);
-    int A2 = area(tri.x1, tri.y1, px, py, tri.x3, tri.y3);
-    int A3 = area(tri.x1, tri.y1, tri.x2, tri.y2, px, py);
-
-    return (A == A1 + A2 + A3);
-}*/

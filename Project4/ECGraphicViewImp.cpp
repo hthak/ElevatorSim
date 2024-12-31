@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const float FPS = 10;
+const float FPS = 5;
 
 //***********************************************************
 // Allegro colors
@@ -185,7 +185,7 @@ void ECGraphicViewImp::Init()
         cout << "failed to initialize audio codecs!" << endl;
         exit(-1);
     }
-    if (!al_reserve_samples(1))
+    if (!al_reserve_samples(2))
     {
         cout << "failed to reserve audio samples!" << endl;
         exit(-1);

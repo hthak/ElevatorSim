@@ -57,9 +57,9 @@ private:
     void DrawWaitingPassengers(const ECElevatorState& st);
 
     //music variables
-    ALLEGRO_SAMPLE* music;
+    ALLEGRO_SAMPLE* backgroundMusic;
     ALLEGRO_SAMPLE* dingSound;
-    ALLEGRO_SAMPLE_ID musicID;
+    ALLEGRO_SAMPLE_ID backgroundMusicID;
 
     //image variables
     ALLEGRO_BITMAP* elevatorImageBack;
