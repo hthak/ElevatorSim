@@ -61,6 +61,7 @@ private:
 
     //music variables
     ALLEGRO_SAMPLE* music;
+    ALLEGRO_SAMPLE* dingSound;
     ALLEGRO_SAMPLE_ID musicID;
 };
 #endif /* ElevatorObserver_h */

@@ -32,7 +32,13 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     }
 
     //play elevator music
-    al_play_sample(music, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &musicID);
+    //al_play_sample(music, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &musicID);
+
+    dingSound = al_load_sample("ding.ogg");
+    if (!dingSound)
+    {
+        std::cout << "Failed to load ding.ogg music file!" << std::endl;
+    }
 
     //draw initally by itself
     view.SetRedraw(true);
@@ -45,6 +51,11 @@ ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in m
         al_stop_sample(&musicID);
         al_destroy_sample(music);
         music = nullptr;
+    }
+    if (dingSound)
+    {
+        al_destroy_sample(dingSound);
+        dingSound = nullptr;
     }
 }
 
@@ -67,6 +78,16 @@ void ECElevatorObserver::Update()
                 {
                     currentFrame = 0;
                     currentSimTime++;
+                }
+            }
+            
+            const ECElevatorState& st = states[currentSimTime];
+            if (!st.waitingMap.count(st.floor) > 0 || !st.onboard.empty())
+            {
+                if (dingSound)
+                {
+                    al_play_sample(dingSound, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, nullptr);
+                    std::cout << "Ding! We are stopping at floor: " << st.floor << std::endl;
                 }
             }
             if (currentSimTime == lenSim - 1) //if simulation ended, stop music

@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Downloads\elevator_music.ogg" />
+    <None Include="..\..\..\..\Downloads\ding.ogg" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

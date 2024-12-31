@@ -19,6 +19,9 @@
     <None Include="..\..\..\..\Downloads\elevator_music.ogg">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\..\..\Downloads\ding.ogg">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ECGraphicViewImp.cpp">
