@@ -184,6 +184,7 @@ void ECElevatorObserver::DrawElevator()
         int cabinHeight = floorHeight;
 
         al_draw_scaled_bitmap(elevatorImageCabin, 0, 0, imgWidth, imgHeight, cabinX - 99, cabinY + 1, cabinWidth + 97, cabinHeight - 3, 0);
+        view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 3.5, ECGV_BLACK);
     }
     else
     {
