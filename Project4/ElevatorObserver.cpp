@@ -21,8 +21,19 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
 {
     bottomFloorY = topFloorY + (numFloors - 1) * floorHeight;
     cabinX = view.GetWidth() / 2;
-    //elevatorPos = bottomFloorY;
     cabinY = bottomFloorY;
+
+    //load elevator music
+    backgroundMusic = al_load_sample("elevator_music.ogg");
+    if (!backgroundMusic)
+    {
+        std::cout << "Failed to load elevator_music.ogg music file!" << std::endl;
+    }
+    backgroundMusicInstance = al_create_sample_instance(backgroundMusic);
+    al_attach_sample_instance_to_mixer(backgroundMusicInstance, al_get_default_mixer()); //add to mixer
+    al_set_sample_instance_gain(backgroundMusicInstance, 0.7); //sets volume
+    al_set_sample_instance_playmode(backgroundMusicInstance, ALLEGRO_PLAYMODE_LOOP); //loops
+    al_play_sample_instance(backgroundMusicInstance); //play elevator background music
 
     //load elevator background image once in constructor
     elevatorImageBack = al_load_bitmap("elevator_back.png");
@@ -38,21 +49,15 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
         std::cout << "Failed to load elevator_cabin.png image!" << std::endl;
     }
 
-    //load elevator music
-    backgroundMusic = al_load_sample("elevator_music.ogg");
-    if (!backgroundMusic)
-    {
-        std::cout << "Failed to load elevator_music.ogg music file!" << std::endl;
-    }
-
-    //play elevator music
-    al_play_sample(backgroundMusic, 0.3, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &backgroundMusicID);
-
     dingSound = al_load_sample("ding.ogg");
     if (!dingSound)
     {
         std::cout << "Failed to load ding.ogg music file!" << std::endl;
     }
+    dingSoundInstance = al_create_sample_instance(dingSound);
+    al_attach_sample_instance_to_mixer(dingSoundInstance, al_get_default_mixer());
+    al_set_sample_instance_gain(dingSoundInstance, 0.3); //set volume
+    al_set_sample_instance_playmode(dingSoundInstance, ALLEGRO_PLAYMODE_ONCE); //playmode once
 
     //draw initally by itself
     view.SetRedraw(true);
@@ -60,9 +65,18 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
 
 ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in mem
 {
+    if (backgroundMusicInstance)
+    {
+        al_destroy_sample_instance(backgroundMusicInstance);
+        backgroundMusicInstance = nullptr;
+    }
+    if (dingSoundInstance)
+    {
+        al_destroy_sample_instance(dingSoundInstance);
+        dingSoundInstance = nullptr;
+    }
     if (backgroundMusic)
     {
-        al_stop_sample(&backgroundMusicID);
         al_destroy_sample(backgroundMusic);
         backgroundMusic = nullptr;
     }
@@ -93,7 +107,14 @@ void ECElevatorObserver::Update()
         view.SetRedraw(true);
     }
     if (evt == ECGV_EV_TIMER) {
-        if (!paused) {
+        if (!paused)
+        {
+            if (!al_get_sample_instance_playing(backgroundMusicInstance))
+            {
+                al_set_sample_instance_position(backgroundMusicInstance, currentBackMusicPos);
+                al_set_sample_instance_playing(backgroundMusicInstance, true);
+            }
+            
             //advance animation frame
             if (currentSimTime < lenSim - 1)
             {
@@ -107,15 +128,10 @@ void ECElevatorObserver::Update()
                     bool isStoppedNow = currState.dir == EC_ELEVATOR_STOPPED;
                     if (wasMoving && isStoppedNow)
                     {
-                        if (dingSound)
-                        {
-                            al_play_sample(dingSound, 0.8, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, nullptr);
-                            std::cout << "ding ding" << std::endl;
-                        }
+                        al_play_sample_instance(dingSoundInstance);
                     }
                 }
                 
-
                 if (currentFrame >= framesPerStep)
                 {
                     currentFrame = 0;
@@ -126,10 +142,19 @@ void ECElevatorObserver::Update()
             //stopping background music once elevator simulation time done
             if (currentSimTime == lenSim - 1)
             {
-                al_stop_sample(&backgroundMusicID);
+                al_stop_sample_instance(backgroundMusicInstance);
             }
 
             view.SetRedraw(true);
+        }
+        else //paused
+        {
+            if (al_get_sample_instance_playing(backgroundMusicInstance))
+            {
+                currentBackMusicPos = al_get_sample_instance_position(backgroundMusicInstance);
+                al_set_sample_instance_playing(backgroundMusicInstance, false);
+            }
+            al_set_sample_instance_playing(dingSoundInstance, false);
         }
         DrawElevator();
     }
@@ -156,7 +181,7 @@ void ECElevatorObserver::DrawElevator()
     view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 5, ECGV_BLACK);
 
     // Draw floor lines and triangles for buttons
-    for (int floor = 1; floor < numFloors; floor++)
+    for (int floor = 1; floor <= numFloors; floor++)
     {
         int y = bottomFloorY - (floor - 1) * floorHeight; //get y pos of each line
         view.DrawLine(view.GetWidth() / 2 - 100, y, view.GetWidth() / 2 + 100, y, 5, ECGV_BLACK); //draw shaft lines

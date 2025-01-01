@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     inFile.close(); //close file
 
     //sorting requests by time
-    std::sort(requests.begin(), requests.end(), [](const ECElevatorSimRequest& a, const ECElevatorSimRequest& b) {
+    std::sort(requests.begin(), requests.end(), [](const ECElevatorSimRequest& a, const ECElevatorSimRequest& b){
         return a.GetTime() < b.GetTime();
         });
 

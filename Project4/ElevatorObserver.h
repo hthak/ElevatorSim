@@ -59,7 +59,9 @@ private:
     //music variables
     ALLEGRO_SAMPLE* backgroundMusic;
     ALLEGRO_SAMPLE* dingSound;
-    ALLEGRO_SAMPLE_ID backgroundMusicID;
+    ALLEGRO_SAMPLE_INSTANCE* backgroundMusicInstance;
+    ALLEGRO_SAMPLE_INSTANCE* dingSoundInstance;
+    unsigned int currentBackMusicPos = 0;
 
     //image variables
     ALLEGRO_BITMAP* elevatorImageBack;
