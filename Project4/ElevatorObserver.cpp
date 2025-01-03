@@ -36,7 +36,7 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     al_play_sample_instance(backgroundMusicInstance); //play elevator background music
 
     //load elevator background image once in constructor
-    elevatorImageBack = al_load_bitmap("elevator_back.png");
+    elevatorImageBack = al_load_bitmap("elevator_back_new.png");
     if (!elevatorImageBack)
     {
         std::cout << "Failed to load elevator_back.png image!" << std::endl;
@@ -47,6 +47,13 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     if (!elevatorImageCabin)
     {
         std::cout << "Failed to load elevator_cabin.png image!" << std::endl;
+    }
+
+    //load elevator shaft image
+    shaftImage = al_load_bitmap("front_door.png");
+    if (!shaftImage)
+    {
+        std::cout << "Failed to load front_door.png image!" << std::endl;
     }
 
     dingSound = al_load_sample("ding.ogg");
@@ -94,6 +101,11 @@ ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in m
     {
         al_destroy_bitmap(elevatorImageCabin);
         elevatorImageCabin = nullptr;
+    }
+    if (shaftImage)
+    {
+        al_destroy_bitmap(shaftImage);
+        shaftImage = nullptr;
     }
 }
 
@@ -178,13 +190,48 @@ void ECElevatorObserver::DrawElevator()
     //draw filled rectangle for whole elevator shaft
     view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_SILVER);
     //draw elevator shaft border lines
-    view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 5, ECGV_BLACK);
+    view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 5, ECGV_WHITE);
 
     // Draw floor lines and triangles for buttons
     for (int floor = 1; floor <= numFloors; floor++)
     {
         int y = bottomFloorY - (floor - 1) * floorHeight; //get y pos of each line
-        view.DrawLine(view.GetWidth() / 2 - 100, y, view.GetWidth() / 2 + 100, y, 5, ECGV_BLACK); //draw shaft lines
+
+        //shaft images
+        int shaftImgWidth = al_get_bitmap_width(shaftImage);
+        int shaftImgHeight = al_get_bitmap_height(shaftImage);
+        al_draw_scaled_bitmap(shaftImage, 0, 0, shaftImgWidth, shaftImgHeight, view.GetWidth() / 2 - 100, y, 200, floorHeight, 0);
+
+        //view.DrawLine(view.GetWidth() / 2 - 100, y, view.GetWidth() / 2 + 100, y, 5, ECGV_WHITE); //draw shaft lines
+
+        //triangles
+        int buttonBaseX = view.GetWidth() / 2 + 50;
+        int floorMidY = y + floorHeight / 2 - 5;
+
+        ECGVColor upColor = ECGV_SILVER;
+        ECGVColor downColor = ECGV_SILVER;
+
+        const ECElevatorState& st = states[currentSimTime];
+        if (st.waitingMap.count(floor) > 0) //if there are ppl waiting at the floor
+        {
+            for (const auto& info : st.waitingMap.at(floor))
+            {
+                if (info.goingUp)
+                {
+                    upColor = ECGV_YELLOW;
+                }
+                else
+                {
+                    downColor = ECGV_YELLOW;
+                }
+            }
+        }
+
+        view.DrawRectangle(buttonBaseX - 9, floorMidY - 14, buttonBaseX + 9, floorMidY + 14, 1, ECGV_WHITE);
+        view.DrawFilledRectangle(buttonBaseX - 8, floorMidY - 13, buttonBaseX + 8, floorMidY + 13, ECGV_BLACK);
+        
+        view.DrawFilledTriangle(buttonBaseX, floorMidY - 8, buttonBaseX + 6, floorMidY - 2, buttonBaseX - 6, floorMidY - 2, upColor);
+        view.DrawFilledTriangle(buttonBaseX, floorMidY + 8, buttonBaseX + 6, floorMidY + 2, buttonBaseX - 6, floorMidY + 2, downColor);
     }
 
     //updates cabin position frame by frame
@@ -209,7 +256,7 @@ void ECElevatorObserver::DrawElevator()
         int cabinHeight = floorHeight;
 
         al_draw_scaled_bitmap(elevatorImageCabin, 0, 0, imgWidth, imgHeight, cabinX - 99, cabinY + 1, cabinWidth + 97, cabinHeight - 3, 0);
-        view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 3.5, ECGV_BLACK);
+        view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 4, ECGV_BLACK);
     }
     else
     {

@@ -66,5 +66,6 @@ private:
     //image variables
     ALLEGRO_BITMAP* elevatorImageBack;
     ALLEGRO_BITMAP* elevatorImageCabin;
+    ALLEGRO_BITMAP* shaftImage;
 };
 #endif /* ElevatorObserver_h */
