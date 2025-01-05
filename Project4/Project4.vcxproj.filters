@@ -61,6 +61,9 @@
     <Font Include="..\..\..\..\Downloads\lucon.ttf">
       <Filter>Resource Files</Filter>
     </Font>
+    <Font Include="..\..\..\..\Downloads\jersey.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
   <ItemGroup>
     <Text Include="test1.txt" />
@@ -76,6 +79,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\..\..\..\Downloads\front_door.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\man.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

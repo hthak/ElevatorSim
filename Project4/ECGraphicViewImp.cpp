@@ -20,15 +20,15 @@ const float FPS = 8;
 
 ALLEGRO_COLOR arrayAllegroColors[ECGV_NUM_COLORS] =
 {
-    al_map_rgb_f(0, 0, 0),
-    al_map_rgb_f(255,255,255),
-    al_map_rgb_f(255,0,0),
-    al_map_rgb_f(0,255,0),
-    al_map_rgb_f(0,0,255),
-    al_map_rgb_f(255,255,0),
-    al_map_rgb_f(255,0,255),
-    al_map_rgb_f(0,255,255),
-    al_map_rgb(173, 216, 230),
+    al_map_rgb(0, 0, 0),
+    al_map_rgb(255,255,255),
+    al_map_rgb(255,0,0),
+    al_map_rgb(0,255,0),
+    al_map_rgb(0,0,255),
+    al_map_rgb(255,255,0),
+    al_map_rgb(255,0,255),
+    al_map_rgb(0,255,255),
+    al_map_rgb(173, 216, 230), //rgb
     al_map_rgb(210, 210, 210),
     al_map_rgb(68, 68, 68),
     al_map_rgb(107,142,35),
@@ -400,6 +400,19 @@ void ECGraphicViewImp::DrawText(int xcenter, int ycenter, const char* ptext, ECG
 {
     al_draw_text(this->fontDef, arrayAllegroColors[color], xcenter, ycenter, ALLEGRO_ALIGN_CENTER, ptext);
 }
+
+void ECGraphicViewImp::DrawTextFont(int xcenter, int ycenter, const char* ptext, ECGVColor color, ALLEGRO_FONT* customFont)
+{
+    if (!customFont)
+    {
+        al_draw_text(this->fontDef, arrayAllegroColors[color], xcenter, ycenter, ALLEGRO_ALIGN_CENTER, ptext);
+    }
+    else
+    {
+        al_draw_text(customFont, arrayAllegroColors[color], xcenter, ycenter, ALLEGRO_ALIGN_CENTER, ptext);
+    }
+}
+
 
 void ECGraphicViewImp::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness, ECGVColor color) {
     al_draw_triangle(x1, y1, x2, y2, x3, y3, arrayAllegroColors[color], thickness);

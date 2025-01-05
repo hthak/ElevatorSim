@@ -11,13 +11,12 @@
 //waitingPassengers set to empty and number of floors
 //cabinX = elevator cabin = middle of elevator
 //cabinY = elevator cabin = current y = 500
-//passengerRadius = how wide each passenger circle is
 //margin = how far apart each passenger is
 ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     const std::vector<ECElevatorState>& allStates, int lenSim) :
     view(viewIn), numFloors(numFloors), states(allStates), lenSim(lenSim),
     currentTime(0), paused(false), floorHeight(100), topFloorY(100),
-    passengerRadius(10), margin(20), framesPerStep(10), currentFrame(0), currentSimTime(0)
+    framesPerStep(10), currentFrame(0), currentSimTime(0)
 {
     bottomFloorY = topFloorY + (numFloors - 1) * floorHeight;
     cabinX = view.GetWidth() / 2;
@@ -66,6 +65,18 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     al_set_sample_instance_gain(dingSoundInstance, 0.3); //set volume
     al_set_sample_instance_playmode(dingSoundInstance, ALLEGRO_PLAYMODE_ONCE); //playmode once
 
+    manImage = al_load_bitmap("man.png");
+    if (!manImage)
+    {
+        std::cout << "Failed to load man.png image!" << std::endl;
+    }
+
+    jerseyFont = al_load_font("jersey.ttf", 22, 0);
+    if (!jerseyFont)
+    {
+        std::cout << "Failed to load jersey.ttf font!" << std::endl;
+    }
+
     //draw initally by itself
     view.SetRedraw(true);
 }
@@ -106,6 +117,16 @@ ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in m
     {
         al_destroy_bitmap(shaftImage);
         shaftImage = nullptr;
+    }
+    if (manImage)
+    {
+        al_destroy_bitmap(manImage);
+        manImage = nullptr;
+    }
+    if (jerseyFont)
+    {
+        al_destroy_font(jerseyFont);
+        jerseyFont = nullptr;
     }
 }
 
@@ -202,8 +223,6 @@ void ECElevatorObserver::DrawElevator()
         int shaftImgHeight = al_get_bitmap_height(shaftImage);
         al_draw_scaled_bitmap(shaftImage, 0, 0, shaftImgWidth, shaftImgHeight, view.GetWidth() / 2 - 100, y, 200, floorHeight, 0);
 
-        //view.DrawLine(view.GetWidth() / 2 - 100, y, view.GetWidth() / 2 + 100, y, 5, ECGV_WHITE); //draw shaft lines
-
         //triangles
         int buttonBaseX = view.GetWidth() / 2 + 50;
         int floorMidY = y + floorHeight / 2 - 5;
@@ -256,7 +275,7 @@ void ECElevatorObserver::DrawElevator()
         int cabinHeight = floorHeight;
 
         al_draw_scaled_bitmap(elevatorImageCabin, 0, 0, imgWidth, imgHeight, cabinX - 99, cabinY + 1, cabinWidth + 97, cabinHeight - 3, 0);
-        view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 4, ECGV_BLACK);
+        view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 4, ECGV_SILVER);
     }
     else
     {
@@ -270,17 +289,24 @@ void ECElevatorObserver::DrawElevator()
     DrawWaitingPassengers(st);
 
     //draw onboard passengers
-    int pxStart = cabinX - 40;
-    int pyStart = cabinY + 20;
+    int pxStart = cabinX - 100;
+    int pyStart = cabinY + 25;
+    int manW = al_get_bitmap_width(manImage);
+    int manH = al_get_bitmap_height(manImage);
+    int scaledH = floorHeight / 1.5;
+    double scaleFactor = double(scaledH) / double(manH);
+    int scaledW = int(manW * scaleFactor);
     for (int i = 0; i < st.onboard.size(); i++)
     {
         auto& reqInfo = st.onboard[i];
-        int px = pxStart + (int(i) % 4) * (passengerRadius * 2 + margin);
-        int py = pyStart + (int(i) / 4) * (passengerRadius * 2 + margin);
+        int px = pxStart + i * (scaledW * 0.5);
+        int py = pyStart;
+        al_draw_scaled_bitmap(manImage, 0, 0, manW, manH, px, py, scaledW, scaledH, 0);
 
-        view.DrawFilledCircle(px, py, passengerRadius, ECGV_WHITE);
+        //view.DrawFilledCircle(px, py, passengerRadius, ECGV_WHITE);
         std::string dest = std::to_string(reqInfo.destFloor);
-        view.DrawText(px - 5, py - 5, dest.c_str(), ECGV_BLACK);
+        //view.DrawText(px - 5, py - 5, dest.c_str(), ECGV_WHITE);
+        view.DrawTextFont(px + (scaledW / 2), py + 15, dest.c_str(), ECGV_WHITE, jerseyFont);
 
     }
 
@@ -307,34 +333,32 @@ void ECElevatorObserver::DrawWaitingPassengers(const ECElevatorState& st)
 {
     for (int floorNum = 1; floorNum <= numFloors; floorNum++) //for each floor
     {
-        int y = bottomFloorY - (floorNum - 1) * floorHeight; //position to draw person at
+        int y = bottomFloorY - (floorNum - 2) * floorHeight; //position to draw person at
 
         if (st.waitingMap.count(floorNum) > 0) //if there are ppl to draw
-        {
-            view.DrawFilledCircle(view.GetWidth() / 2 - 120, y + 20, 10, ECGV_GREEN);
-            int upCount = 0;
-            int downCount = 0;
+        {            
+            int baseX = view.GetWidth() / 2 + 90;
+            int spacing = 10;
+            int manW = al_get_bitmap_width(manImage);
+            int manH = al_get_bitmap_height(manImage);
+            int scaledH = floorHeight / 1.5;
+            double scaleFactor = double(scaledH) / double(manH);
+            int scaledW = int(manW * scaleFactor);
+            int count = 0;
+
             for (auto& reqInfo : st.waitingMap.at(floorNum)) //for each person in RequestInfo on this floor
             {
                 bool goingUp = reqInfo.goingUp; //update going up
                 int dest = reqInfo.destFloor; //update where they are going
+                count++;
 
-                int px, py = y; //offset
-                if (goingUp) //draw button on left if going up
-                {
-                    px = view.GetWidth() / 2 - 180 - (upCount * (passengerRadius * 2 + margin));
-                    upCount++;
-                }
-                else //draw button on right if going down
-                {
-                    px = view.GetWidth() / 2 + 180 + (downCount * (passengerRadius * 2 + margin));
-                    downCount++;
-                }
-
-                view.DrawFilledCircle(px, py, passengerRadius, ECGV_PURPLE); //draw person in yellow
+                int px = baseX + count * (scaledW * 0.5);
+                int py = y - scaledH;
+                
+                al_draw_scaled_bitmap(manImage, 0, 0, manW, manH, px, py, scaledW, scaledH, 0);
 
                 std::string destStr = std::to_string(dest);
-                view.DrawText(px - 5, py - 5, destStr.c_str(), ECGV_BLACK); //write underneath where they are going
+                view.DrawTextFont(px + scaledW/2, py + 15, destStr.c_str(), ECGV_WHITE, jerseyFont); //write underneath where they are going
             }
         }
     }

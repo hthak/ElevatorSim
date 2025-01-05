@@ -140,6 +140,7 @@ public:
     void DrawEllipse(int xcenter, int ycenter, double radiusx, double radiusy, int thickness = 3, ECGVColor color = ECGV_BLACK);
     void DrawFilledEllipse(int xcenter, int ycenter, double radiusx, double radiusy, ECGVColor color = ECGV_BLACK);
     void DrawText(int xcenter, int ycenter, const char* ptext, ECGVColor color = ECGV_BLACK);
+    void DrawTextFont(int xcenter, int ycenter, const char* ptext, ECGVColor color, ALLEGRO_FONT* customFont);
     void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness = 3, ECGVColor color = ECGV_BLACK);
     void DrawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, ECGVColor color = ECGV_BLACK);
 

@@ -37,8 +37,6 @@ private:
     int bottomFloorY; //y pos of bottom floor
     int cabinX;
     int cabinY;
-    int passengerRadius;
-    int margin;
 
     //stores all action states
     const std::vector<ECElevatorState>& states;
@@ -67,5 +65,9 @@ private:
     ALLEGRO_BITMAP* elevatorImageBack;
     ALLEGRO_BITMAP* elevatorImageCabin;
     ALLEGRO_BITMAP* shaftImage;
+    ALLEGRO_BITMAP* manImage;
+
+    //fonts
+    ALLEGRO_FONT* jerseyFont;
 };
 #endif /* ElevatorObserver_h */
