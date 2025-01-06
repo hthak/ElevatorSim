@@ -64,6 +64,9 @@
     <Font Include="..\..\..\..\Downloads\jersey.ttf">
       <Filter>Resource Files</Filter>
     </Font>
+    <Font Include="..\..\..\..\Downloads\segmented.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
   <ItemGroup>
     <Text Include="test1.txt" />
@@ -82,6 +85,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\..\..\..\Downloads\man.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\down_arrow.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\up_arrow.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

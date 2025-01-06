@@ -1,4 +1,4 @@
-#include "ElevatorObserver.h"
+﻿#include "ElevatorObserver.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -77,6 +77,24 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
         std::cout << "Failed to load jersey.ttf font!" << std::endl;
     }
 
+    segmentedFont = al_load_font("segmented.ttf", 60, 0);
+    if (!segmentedFont)
+    {
+        std::cout << "Failed to load segmented.ttf font!" << std::endl;
+    }
+
+    upArrowImage = al_load_bitmap("up_arrow.png");
+    if (!upArrowImage)
+    {
+        std::cout << "Failed to load up_arrow.png" << std::endl;
+    }
+
+    downArrowImage = al_load_bitmap("down_arrow.png");
+    if (!downArrowImage)
+    {
+        std::cout << "Failed to load down_arrow.png" << std::endl;
+    }
+
     //draw initally by itself
     view.SetRedraw(true);
 }
@@ -127,6 +145,16 @@ ECElevatorObserver::~ECElevatorObserver() //destructor free music variables in m
     {
         al_destroy_font(jerseyFont);
         jerseyFont = nullptr;
+    }
+    if (upArrowImage)
+    {
+        al_destroy_bitmap(upArrowImage);
+        upArrowImage = nullptr;
+    }
+    if (downArrowImage)
+    {
+        al_destroy_bitmap(downArrowImage);
+        downArrowImage = nullptr;
     }
 }
 
@@ -252,6 +280,33 @@ void ECElevatorObserver::DrawElevator()
         view.DrawFilledTriangle(buttonBaseX, floorMidY - 8, buttonBaseX + 6, floorMidY - 2, buttonBaseX - 6, floorMidY - 2, upColor);
         view.DrawFilledTriangle(buttonBaseX, floorMidY + 8, buttonBaseX + 6, floorMidY + 2, buttonBaseX - 6, floorMidY + 2, downColor);
     }
+
+    //draw screen for elevator
+    int screenWidth = 180;
+    int screenHeight = 90;
+    int screenX = view.GetWidth() / 2 - screenWidth - 250;
+    int screenY = topFloorY + 200;
+    view.DrawRectangle(screenX - 3, screenY - 3, screenX + screenWidth + 3, screenY + screenHeight + 3, 3, ECGV_WHITE);
+    view.DrawFilledRectangle(screenX, screenY, screenX + screenWidth, screenY + screenHeight, ECGV_BLACK);
+    int currentFloor = states[currentSimTime].floor;
+    EC_ELEVATOR_DIR direction = states[currentSimTime].dir;
+    if (direction == EC_ELEVATOR_UP)
+    {
+        al_draw_scaled_bitmap(upArrowImage, 0, 0, al_get_bitmap_width(upArrowImage), al_get_bitmap_height(upArrowImage),
+            screenX + 30, screenY + (screenHeight - 40) / 2, 40, 40, 0);
+    }
+    else if (direction == EC_ELEVATOR_DOWN)
+    {
+        al_draw_scaled_bitmap(downArrowImage, 0, 0, al_get_bitmap_width(downArrowImage), al_get_bitmap_height(downArrowImage),
+            screenX + 30, screenY + (screenHeight - 40) / 2, 40, 40, 0);
+    }
+    else
+    {
+        view.DrawTextFont(screenX + 60, screenY + (screenHeight / 2) - 30, "-", ECGV_RED, segmentedFont);
+    }
+
+    std::string floorText = std::to_string(currentFloor);
+    view.DrawTextFont(screenX + 120, screenY + (screenHeight / 2) - 30, floorText.c_str(), ECGV_RED, segmentedFont);
 
     //updates cabin position frame by frame
     int prevFloor = states[currentSimTime].floor;

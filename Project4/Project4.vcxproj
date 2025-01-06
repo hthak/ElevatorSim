@@ -158,6 +158,7 @@
     <ClInclude Include="SimpleObserver.h" />
   </ItemGroup>
   <ItemGroup>
+    <Font Include="..\..\..\..\Downloads\segmented.ttf" />
     <Font Include="..\..\..\..\Downloads\jersey.ttf" />
     <Font Include="..\..\..\..\Downloads\lucon.ttf" />
   </ItemGroup>
@@ -165,11 +166,13 @@
     <Text Include="test1.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\down_arrow.png" />
     <Image Include="..\..\..\..\Downloads\elevator_back_new.png" />
     <Image Include="..\..\..\..\Downloads\elevator_back.png" />
     <Image Include="..\..\..\..\Downloads\elevator_cabin.png" />
     <Image Include="..\..\..\..\Downloads\man.png" />
     <Image Include="..\..\..\..\Downloads\front_door.png" />
+    <Image Include="..\..\..\..\Downloads\up_arrow.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

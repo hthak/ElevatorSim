@@ -66,8 +66,11 @@ private:
     ALLEGRO_BITMAP* elevatorImageCabin;
     ALLEGRO_BITMAP* shaftImage;
     ALLEGRO_BITMAP* manImage;
+    ALLEGRO_BITMAP* upArrowImage;
+    ALLEGRO_BITMAP* downArrowImage;
 
     //fonts
     ALLEGRO_FONT* jerseyFont;
+    ALLEGRO_FONT* segmentedFont;
 };
 #endif /* ElevatorObserver_h */
