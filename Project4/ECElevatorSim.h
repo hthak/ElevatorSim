@@ -201,6 +201,8 @@ private:
 
     void UpdateDirectionAtTime(int tm);
     void UpdateElevatorMovement(ECElevatorMovement* movement, int tm);
+
+    int findClosestRequestFloor(int currFloor, int time) const;
 };
 
 
