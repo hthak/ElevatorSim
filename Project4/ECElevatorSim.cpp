@@ -35,6 +35,8 @@ void ECElevatorSim::Simulate(int lenSim)
 {
     for (auto tm = 0; tm < lenSim; tm++) //simulate time
     {
+        RecordState(tm);
+        
         UpdateDirectionAtTime(tm);
 
         //create approproate class object and invoke method to update floor
@@ -57,7 +59,7 @@ void ECElevatorSim::Simulate(int lenSim)
                 stop->ChangeDirection(reqs, currDir, currFloor, tm);
             }
         }
-        RecordState(tm);
+        
         prevMove = GetCurrDir();
     }
 }
