@@ -10,15 +10,90 @@
 
 class ECElevatorSim;
 
+class ResourceFactory //factory class to load resources using shared pointers
+{
+public:
+    //image factory
+    static std::shared_ptr<ALLEGRO_BITMAP> loadBitmap(const std::string& name)
+    {
+        ALLEGRO_BITMAP* bitmap = al_load_bitmap(name.c_str()); //create ALLEGRO_BITMAP object
+        if (!bitmap) //error fallback
+        {
+            std::cout << "Failed to load bitmap: " << name << std::endl;
+        }
+        return std::shared_ptr<ALLEGRO_BITMAP>(bitmap, al_destroy_bitmap); //shared pointer allows it to be deleted automatically
+    }
+
+    //font factory
+    static std::shared_ptr<ALLEGRO_FONT> loadFont(const std::string& name, int size)
+    {
+        ALLEGRO_FONT* font = al_load_font(name.c_str(), size, 0); //create ALLEGRO_FONT object
+        if (!font) //error fallback
+        {
+            std::cout << "Failed to load font: " << name << std::endl;
+        }
+        return std::shared_ptr<ALLEGRO_FONT>(font, al_destroy_font);
+    }
+
+    //music sample factory
+    static std::shared_ptr<ALLEGRO_SAMPLE> loadSample(const std::string& name)
+    {
+        ALLEGRO_SAMPLE* sample = al_load_sample(name.c_str());
+        if (!sample)
+        {
+            std::cout << "Failed to load sample: " << name << std::endl;
+        }
+        return std::shared_ptr<ALLEGRO_SAMPLE>(sample, al_destroy_sample);
+    }
+
+    //music sample instance factory
+    static std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> loadSampleInstance(ALLEGRO_SAMPLE* sample)
+    {
+        ALLEGRO_SAMPLE_INSTANCE* sampleInstance = al_create_sample_instance(sample);
+        if (!sampleInstance)
+        {
+            std::cout << "Failed to load sample instance from sample: " << sample << std::endl;
+        }
+        return std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE>(sampleInstance, al_destroy_sample_instance);
+    }
+};
+
+
 //frontend
 class ECElevatorObserver : public ECObserver
 {
 public:
-    //take in view, numFloors, allStates = actions, lenSim = how long to run
     ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors, const std::vector<ECElevatorState>& allStates, int lenSim);
-    ~ECElevatorObserver();
 
-    virtual void Update(); // What to do on update
+    virtual void Update();
+
+private:
+    //view reference
+    ECGraphicViewImp& view;
+
+    //constants
+    static const int floorHeight = 100;
+    static const int cabinWidth = 100;
+    static const int cabinHeight = 100;
+
+    //music shared pointer variables
+    std::shared_ptr<ALLEGRO_SAMPLE> backgroundMusic;
+    std::shared_ptr<ALLEGRO_SAMPLE> dingSound;
+    std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> backgroundMusicInstance;
+    std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> dingSoundInstance;
+    unsigned int currentBackMusicPos = 0;
+
+    //image shared pointer variables
+    std::shared_ptr<ALLEGRO_BITMAP> elevatorImageBack;
+    std::shared_ptr<ALLEGRO_BITMAP> elevatorImageCabin;
+    std::shared_ptr<ALLEGRO_BITMAP> shaftImage;
+    std::shared_ptr<ALLEGRO_BITMAP> manImage;
+    std::shared_ptr<ALLEGRO_BITMAP> upArrowImage;
+    std::shared_ptr<ALLEGRO_BITMAP> downArrowImage;
+
+    //font shared pointer variables
+    std::shared_ptr<ALLEGRO_FONT> jerseyFont;
+    std::shared_ptr<ALLEGRO_FONT> segmentedFont;
 
     //redraw the frontend
     void SetRedraw(bool f)
@@ -26,13 +101,8 @@ public:
         view.SetRedraw(f);
     }
 
-private:
-    //view reference
-    ECGraphicViewImp& view;
-
     //drawing variables
     int numFloors; //num of elevator floors
-    int floorHeight; //height of each floor
     int topFloorY; //y pos of top floor
     int bottomFloorY; //y pos of bottom floor
     int cabinX;
@@ -43,9 +113,8 @@ private:
 
     //timing properties
     int lenSim;
-    int currentTime;
     bool paused;
-    int framesPerStep;
+    static const int framesPerStep = 8;
     int currentFrame;
     int currentSimTime;
 
@@ -54,23 +123,5 @@ private:
     void DrawTimeAndProgressBar();
     void DrawWaitingPassengers(const ECElevatorState& st);
 
-    //music variables
-    ALLEGRO_SAMPLE* backgroundMusic;
-    ALLEGRO_SAMPLE* dingSound;
-    ALLEGRO_SAMPLE_INSTANCE* backgroundMusicInstance;
-    ALLEGRO_SAMPLE_INSTANCE* dingSoundInstance;
-    unsigned int currentBackMusicPos = 0;
-
-    //image variables
-    ALLEGRO_BITMAP* elevatorImageBack;
-    ALLEGRO_BITMAP* elevatorImageCabin;
-    ALLEGRO_BITMAP* shaftImage;
-    ALLEGRO_BITMAP* manImage;
-    ALLEGRO_BITMAP* upArrowImage;
-    ALLEGRO_BITMAP* downArrowImage;
-
-    //fonts
-    ALLEGRO_FONT* jerseyFont;
-    ALLEGRO_FONT* segmentedFont;
 };
 #endif /* ElevatorObserver_h */
