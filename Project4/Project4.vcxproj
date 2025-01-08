@@ -158,6 +158,7 @@
     <ClInclude Include="SimpleObserver.h" />
   </ItemGroup>
   <ItemGroup>
+    <Font Include="..\..\..\..\Downloads\MiguerSans-Regular.ttf" />
     <Font Include="..\..\..\..\Downloads\segmented.ttf" />
     <Font Include="..\..\..\..\Downloads\jersey.ttf" />
     <Font Include="..\..\..\..\Downloads\lucon.ttf" />

@@ -71,7 +71,8 @@ enum ECGVColor
     ECGV_DARK_GREY = 10,
     ECGV_OLIVE_GREEN = 11,
     ECGV_BROWN = 12,
-    ECGV_NONE = 13,
+    ECGV_GREY = 13,
+    ECGV_NONE = 14,
     ECGV_NUM_COLORS
 };
 

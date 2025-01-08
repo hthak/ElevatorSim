@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const float FPS = 10;
+const float FPS = 65;
 
 //***********************************************************
 // Allegro colors
@@ -32,7 +32,8 @@ ALLEGRO_COLOR arrayAllegroColors[ECGV_NUM_COLORS] =
     al_map_rgb(210, 210, 210),
     al_map_rgb(68, 68, 68),
     al_map_rgb(107,142,35),
-    al_map_rgb(150, 75, 0)
+    al_map_rgb(150, 75, 0),
+    al_map_rgb(105,105,105)
 };
 
 //***********************************************************

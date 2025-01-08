@@ -111,7 +111,7 @@ private:
 
     //constants
     static constexpr int FLOOR_HEIGHT = 100;
-    static constexpr int FRAMES_PER_STEP = 8;
+    static constexpr int FRAMES_PER_STEP = 65;
     static const int cabinWidth = 100;
     static const int cabinHeight = 100;
 
@@ -133,8 +133,8 @@ private:
     bool musicOn = true;
 
     //clickable button positioning
-    ALLEGRO_RECT pauseBtnRect = { 20,  20,  100, 60 };
-    ALLEGRO_RECT musicBtnRect = { 20,  70,  100, 110 };
+    ALLEGRO_RECT pauseBtnRect = {185, 430, 390, 520};
+    ALLEGRO_RECT musicBtnRect = {160, 560, 415, 650};
 
     //music shared pointer variables
     std::shared_ptr<ALLEGRO_SAMPLE> backgroundMusic;
@@ -153,6 +153,7 @@ private:
 
     //font shared pointer variables
     std::shared_ptr<ALLEGRO_FONT> jerseyFont;
-    std::shared_ptr<ALLEGRO_FONT> segmentedFont;    
+    std::shared_ptr<ALLEGRO_FONT> segmentedFont;  
+    std::shared_ptr<ALLEGRO_FONT> displayFont;
 };
 #endif /* ElevatorObserver_h */

@@ -67,6 +67,9 @@
     <Font Include="..\..\..\..\Downloads\segmented.ttf">
       <Filter>Resource Files</Filter>
     </Font>
+    <Font Include="..\..\..\..\Downloads\MiguerSans-Regular.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
   <ItemGroup>
     <Text Include="test1.txt" />

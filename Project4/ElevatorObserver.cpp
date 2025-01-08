@@ -30,6 +30,7 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     //create fonts from ResourceFactory
     jerseyFont = ResourceFactory::loadFont("jersey.ttf", 22);
     segmentedFont = ResourceFactory::loadFont("segmented.ttf", 60);
+    displayFont = ResourceFactory::loadFont("MiguerSans-Regular.ttf", 50);
 
     //create sound samples from ResourceFactory
     backgroundMusic = ResourceFactory::loadSample("elevator_music.ogg");
@@ -159,7 +160,6 @@ bool ECElevatorObserver::IsInRect(int x, int y, const ALLEGRO_RECT& rect)
     return (x >= rect.left && y >= rect.top && x <= rect.right && y <= rect.bottom);
 }
 
-//visually draw the elevator
 void ECElevatorObserver::DrawElevator()
 {
     if (elevatorImageBack)
@@ -231,21 +231,21 @@ void ECElevatorObserver::DrawElevator()
 
 void ECElevatorObserver::DrawButtons()
 {
-    view.DrawFilledRectangle(pauseBtnRect.left, pauseBtnRect.top, pauseBtnRect.right, pauseBtnRect.bottom, ECGV_SILVER);
-    view.DrawRectangle(pauseBtnRect.left, pauseBtnRect.top, pauseBtnRect.right, pauseBtnRect.bottom, 2, ECGV_BLACK);
+    view.DrawFilledRectangle(pauseBtnRect.left, pauseBtnRect.top, pauseBtnRect.right, pauseBtnRect.bottom, ECGV_GREY);
+    view.DrawRectangle(pauseBtnRect.left, pauseBtnRect.top, pauseBtnRect.right, pauseBtnRect.bottom, 3, ECGV_BLACK);
 
     const char* labelPause = paused ? "Resume" : "Pause";
     int midX = (pauseBtnRect.left + pauseBtnRect.right) / 2;
     int midY = (pauseBtnRect.top + pauseBtnRect.bottom) / 2;
-    view.DrawText(midX, midY - 10, labelPause, ECGV_BLACK);
+    view.DrawTextFont(midX , midY - 30, labelPause, ECGV_WHITE, displayFont.get());
 
-    view.DrawFilledRectangle(musicBtnRect.left, musicBtnRect.top, musicBtnRect.right, musicBtnRect.bottom, ECGV_SILVER);
-    view.DrawRectangle(musicBtnRect.left, musicBtnRect.top,musicBtnRect.right, musicBtnRect.bottom, 2, ECGV_BLACK);
+    view.DrawFilledRectangle(musicBtnRect.left, musicBtnRect.top, musicBtnRect.right, musicBtnRect.bottom, ECGV_DARK_GREY);
+    view.DrawRectangle(musicBtnRect.left, musicBtnRect.top,musicBtnRect.right, musicBtnRect.bottom, 3, ECGV_BLACK);
 
     const char* labelMusic = musicOn ? "Music On" : "Music Off";
     int midX2 = (musicBtnRect.left + musicBtnRect.right) / 2;
     int midY2 = (musicBtnRect.top + musicBtnRect.bottom) / 2;
-    view.DrawText(midX2, midY2 - 10, labelMusic, ECGV_BLACK);
+    view.DrawTextFont(midX2, midY2 - 30, labelMusic, ECGV_WHITE, displayFont.get());
 }
 
 void ECElevatorObserver::DrawElevatorScreen(const ECElevatorState& st)
@@ -257,7 +257,7 @@ void ECElevatorObserver::DrawElevatorScreen(const ECElevatorState& st)
     int screenY = topFloorY + 200;
 
     //draw outer rectangle border
-    view.DrawRectangle(screenX - 3, screenY - 3, screenX + screenWidth + 3, screenY + screenHeight + 3, 3, ECGV_WHITE);
+    view.DrawRectangle(screenX - 2, screenY - 2, screenX + screenWidth + 2, screenY + screenHeight + 2, 3, ECGV_GREY);
 
     //draw black inner fill
     view.DrawFilledRectangle(screenX, screenY, screenX + screenWidth, screenY + screenHeight, ECGV_BLACK);
@@ -293,7 +293,7 @@ void ECElevatorObserver::DrawElevatorCabin()
     int cabinHeight = FLOOR_HEIGHT;
 
     al_draw_scaled_bitmap(elevatorImageCabin.get(), 0, 0, w, h, cabinX - 99, cabinY + 1, cabinWidth + 97, cabinHeight - 3, 0);
-    view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 4, ECGV_SILVER);
+    view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 4, ECGV_BLACK);
     
 }
 
@@ -324,17 +324,17 @@ void ECElevatorObserver::DrawOnboardPassengers(const ECElevatorState& st)
 void ECElevatorObserver::DrawTimeAndProgressBar()
 {
     std::string timeText = "Time: " + std::to_string(currentSimTime);
-    view.DrawText(210, bottomFloorY + FLOOR_HEIGHT + 40, timeText.c_str(), ECGV_BLACK);
+    view.DrawTextFont(270, bottomFloorY - 70, timeText.c_str(), ECGV_WHITE, displayFont.get());
 
-    int barX = 115;
-    int barY = bottomFloorY + FLOOR_HEIGHT + 90;
+    int barX = 150;
+    int barY = bottomFloorY - 100;
     int barHeight = 20;
-    int barWidth = 200;
+    int barWidth = 280;
 
-    view.DrawRectangle(barX, barY, barX + barWidth, barY + barHeight, 2, ECGV_BLACK);
+    view.DrawRectangle(barX, barY, barX + barWidth, barY + barHeight, 3, ECGV_BLACK);
     double prog = double(currentSimTime) / double(lenSim - 1);
     int filledWidth = int(prog * barWidth);
-    view.DrawFilledRectangle(barX, barY, barX + filledWidth, barY + barHeight, ECGV_OLIVE_GREEN);
+    view.DrawFilledRectangle(barX + 1, barY + 2, barX + filledWidth - 2, barY + barHeight - 2, ECGV_OLIVE_GREEN);
 }
 
 void ECElevatorObserver::DrawWaitingPassengers(const ECElevatorState& st)
