@@ -95,6 +95,7 @@ void ECElevatorObserver::Update()
             if (currentSimTime == lenSim - 1 && backgroundMusicInstance)
             {
                 al_stop_sample_instance(backgroundMusicInstance.get());
+                al_stop_sample_instance(dingSoundInstance.get());
             }
             view.SetRedraw(true);
         }
