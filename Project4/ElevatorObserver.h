@@ -10,7 +10,11 @@
 
 class ECElevatorSim;
 
-class ResourceFactory //factory class to load resources using shared pointers
+//----------------------------------------------------------------------------------------------------------------------------
+// ResourceFactory
+// A factory class to load shared resources (bitmaps, fonts, samples, etc.) using shared pointers
+//----------------------------------------------------------------------------------------------------------------------------
+class ResourceFactory
 {
 public:
     //image factory
@@ -58,23 +62,58 @@ public:
     }
 };
 
-
-//frontend
+//----------------------------------------------------------------------------------------------------------------------------
+// ECElevatorobserver
+// Inherits from ECObserver
+// Frontend Observer that listens for timer events and draws the elevator, passengers, etc. visually
+// Utilizes ResourceFactory to create images, fonts, audio instances, etc.
+//----------------------------------------------------------------------------------------------------------------------------
 class ECElevatorObserver : public ECObserver
 {
 public:
+    //constructor
     ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors, const std::vector<ECElevatorState>& allStates, int lenSim);
 
-    virtual void Update();
+    //defualt deconstructor since shared pointers deallocate automatically
+    virtual ~ECElevatorObserver() = default;
+
+    //updates view after new event
+    virtual void Update() override;
 
 private:
     //view reference
     ECGraphicViewImp& view;
 
+    //redraws the frontend
+    void SetRedraw(bool f) { view.SetRedraw(f); }
+
+    //draw helper methods
+    void DrawElevator();
+    void DrawTimeAndProgressBar();
+    void DrawWaitingPassengers(const ECElevatorState& st);
+    void DrawOnboardPassengers(const ECElevatorState& st);
+    void DrawElevatorScreen(const ECElevatorState& st);
+    void DrawElevatorCabin();
+
     //constants
-    static const int floorHeight = 100;
+    static constexpr int FLOOR_HEIGHT = 100;
+    static constexpr int FRAMES_PER_STEP = 8;
     static const int cabinWidth = 100;
     static const int cabinHeight = 100;
+
+    //elevator variables
+    int numFloors;
+    int topFloorY; //y pos of top floor
+    int bottomFloorY; //y pos of bottom floor
+    int cabinX; //x position of cabin
+    int cabinY; //y position of cabin
+
+    //timing properties
+    int lenSim;
+    bool paused;
+    int currentFrame;
+    int currentSimTime;
+    const std::vector<ECElevatorState>& states;
 
     //music shared pointer variables
     std::shared_ptr<ALLEGRO_SAMPLE> backgroundMusic;
@@ -93,35 +132,6 @@ private:
 
     //font shared pointer variables
     std::shared_ptr<ALLEGRO_FONT> jerseyFont;
-    std::shared_ptr<ALLEGRO_FONT> segmentedFont;
-
-    //redraw the frontend
-    void SetRedraw(bool f)
-    {
-        view.SetRedraw(f);
-    }
-
-    //drawing variables
-    int numFloors; //num of elevator floors
-    int topFloorY; //y pos of top floor
-    int bottomFloorY; //y pos of bottom floor
-    int cabinX;
-    int cabinY;
-
-    //stores all action states
-    const std::vector<ECElevatorState>& states;
-
-    //timing properties
-    int lenSim;
-    bool paused;
-    static const int framesPerStep = 8;
-    int currentFrame;
-    int currentSimTime;
-
-    //helper methods
-    void DrawElevator();
-    void DrawTimeAndProgressBar();
-    void DrawWaitingPassengers(const ECElevatorState& st);
-
+    std::shared_ptr<ALLEGRO_FONT> segmentedFont;    
 };
 #endif /* ElevatorObserver_h */

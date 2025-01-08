@@ -7,14 +7,17 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
+//----------------------------------------------------------------------------------------------------------------------------
+// ECElevatorObserver Implementation
+//----------------------------------------------------------------------------------------------------------------------------
 ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     const std::vector<ECElevatorState>& allStates, int lenSim) :
     view(viewIn), numFloors(numFloors), states(allStates), lenSim(lenSim),
     paused(false), topFloorY(100), currentSimTime(0), currentFrame(0)
 {
-    bottomFloorY = topFloorY + (numFloors - 1) * floorHeight;
-    cabinX = view.GetWidth() / 2; //x position of cabin
-    cabinY = bottomFloorY; //y position of cabin
+    bottomFloorY = topFloorY + (numFloors - 1) * FLOOR_HEIGHT;
+    cabinX = view.GetWidth() / 2;
+    cabinY = bottomFloorY;
 
     //create images from ResourceFactory
     elevatorImageBack = ResourceFactory::loadBitmap("elevator_back_new.png");
@@ -52,15 +55,16 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
 //updates elevator based of key/button press
 void ECElevatorObserver::Update()
 {
-    ECGVEventType evt = view.GetCurrEvent(); //similar to car, get the current event on the keyboard
+    ECGVEventType evt = view.GetCurrEvent(); //current keyboard event
     if (evt == ECGV_EV_KEY_UP_SPACE)
     {
-        paused = !paused; //stop or start when space pressed
+        paused = !paused;
         view.SetRedraw(true);
     }
     if (evt == ECGV_EV_TIMER) {
         if (!paused)
         {
+            //if music is not playing, resume where it was paused
             if (!al_get_sample_instance_playing(backgroundMusicInstance.get()))
             {
                 al_set_sample_instance_position(backgroundMusicInstance.get(), currentBackMusicPos);
@@ -71,20 +75,20 @@ void ECElevatorObserver::Update()
             if (currentSimTime < lenSim - 1)
             {
                 currentFrame++;
-                if (currentFrame == 1)
+                if (currentFrame == 1 && dingSoundInstance)
                 {
                     //elevator ding sound logic
                     const ECElevatorState& prevState = states[currentSimTime];
                     const ECElevatorState& currState = states[currentSimTime + 1];
                     bool wasMoving = (prevState.dir == EC_ELEVATOR_UP || prevState.dir == EC_ELEVATOR_DOWN);
                     bool isStoppedNow = currState.dir == EC_ELEVATOR_STOPPED;
-                    if (wasMoving && isStoppedNow)
+                    if (wasMoving && isStoppedNow) //only play when stops at a floor
                     {
                         al_play_sample_instance(dingSoundInstance.get());
                     }
                 }
                 
-                if (currentFrame >= framesPerStep)
+                if (currentFrame >= FRAMES_PER_STEP)
                 {
                     currentFrame = 0;
                     currentSimTime++;
@@ -92,21 +96,25 @@ void ECElevatorObserver::Update()
             }
 
             //stopping background music once elevator simulation time done
-            if (currentSimTime == lenSim - 1)
+            if (currentSimTime == lenSim - 1 && backgroundMusicInstance)
             {
                 al_stop_sample_instance(backgroundMusicInstance.get());
             }
-
             view.SetRedraw(true);
         }
         else //paused
         {
-            if (al_get_sample_instance_playing(backgroundMusicInstance.get()))
+            //paused backgroundMusic so stop music and save time stopped at
+            if (backgroundMusicInstance && al_get_sample_instance_playing(backgroundMusicInstance.get()))
             {
                 currentBackMusicPos = al_get_sample_instance_position(backgroundMusicInstance.get());
                 al_set_sample_instance_playing(backgroundMusicInstance.get(), false);
             }
-            al_set_sample_instance_playing(dingSoundInstance.get(), false);
+            //paused dingSound
+            if (dingSoundInstance)
+            {
+                al_set_sample_instance_playing(dingSoundInstance.get(), false);
+            }
         }
         DrawElevator();
     }
@@ -117,76 +125,91 @@ void ECElevatorObserver::DrawElevator()
 {
     if (elevatorImageBack)
     {
-        int imgWidth = al_get_bitmap_width(elevatorImageBack.get());
-        int imgHeight = al_get_bitmap_height(elevatorImageBack.get());
-
-        al_draw_scaled_bitmap(elevatorImageBack.get(), 0, 0, imgWidth, imgHeight, 0, 0, view.GetWidth(), view.GetHeight(), 0);
-    }
-    else
-    {
-        std::cout << "Failed to draw elevator_back.png image!" << std::endl;
+        int w = al_get_bitmap_width(elevatorImageBack.get());
+        int h = al_get_bitmap_height(elevatorImageBack.get());
+        al_draw_scaled_bitmap(elevatorImageBack.get(), 0, 0, w, h, 0, 0, view.GetWidth(), view.GetHeight(), 0);
     }
 
-    //draw filled rectangle for whole elevator shaft
-    view.DrawFilledRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, ECGV_SILVER);
-    //draw elevator shaft border lines
-    view.DrawRectangle(view.GetWidth() / 2 - 100, topFloorY, view.GetWidth() / 2 + 100, bottomFloorY + floorHeight, 5, ECGV_WHITE);
+    //draw border around elevator
+    view.DrawRectangle(view.GetWidth()/2 - 100, topFloorY, view.GetWidth()/2 + 100, bottomFloorY + FLOOR_HEIGHT, 5, ECGV_WHITE);
 
-    //draw floor lines and triangles for buttons
+    const ECElevatorState& st = states[currentSimTime];
+
+    //draw floor images, font, and buttons
     for (int floor = 1; floor <= numFloors; floor++)
     {
-        int y = bottomFloorY - (floor - 1) * floorHeight; //get y pos of each line
+        int y = bottomFloorY - (floor - 1) * FLOOR_HEIGHT;
 
-        //shaft images
-        int shaftImgWidth = al_get_bitmap_width(shaftImage.get());
-        int shaftImgHeight = al_get_bitmap_height(shaftImage.get());
-        al_draw_scaled_bitmap(shaftImage.get(), 0, 0, shaftImgWidth, shaftImgHeight, view.GetWidth() / 2 - 100, y, 200, floorHeight, 0);
+        //shaft door images
+        int shaftW = al_get_bitmap_width(shaftImage.get());
+        int shaftH = al_get_bitmap_height(shaftImage.get());
+        al_draw_scaled_bitmap(shaftImage.get(), 0, 0, shaftW, shaftH, view.GetWidth() / 2 - 100, y, 200, FLOOR_HEIGHT, 0);
 
-        //triangles
+        //button variables
         int buttonBaseX = view.GetWidth() / 2 + 50;
-        int floorMidY = y + floorHeight / 2 - 5;
-
+        int floorMidY = y + FLOOR_HEIGHT / 2 - 5;
         ECGVColor upColor = ECGV_SILVER;
         ECGVColor downColor = ECGV_SILVER;
 
-        const ECElevatorState& st = states[currentSimTime];
         if (st.waitingMap.count(floor) > 0) //if there are ppl waiting at the floor
         {
             for (const auto& info : st.waitingMap.at(floor))
             {
-                if (info.goingUp)
-                {
-                    upColor = ECGV_RED;
-                }
-                else
-                {
-                    downColor = ECGV_RED;
-                }
+                if (info.goingUp) upColor = ECGV_RED;
+                else downColor = ECGV_RED;
             }
         }
 
+        //draw back plate for buttons
         view.DrawRectangle(buttonBaseX - 9, floorMidY - 14, buttonBaseX + 9, floorMidY + 14, 1, ECGV_WHITE);
         view.DrawFilledRectangle(buttonBaseX - 8, floorMidY - 13, buttonBaseX + 8, floorMidY + 13, ECGV_BLACK);
         
+        //draw triangle buttons
         view.DrawFilledTriangle(buttonBaseX, floorMidY - 8, buttonBaseX + 6, floorMidY - 2, buttonBaseX - 6, floorMidY - 2, upColor);
         view.DrawFilledTriangle(buttonBaseX, floorMidY + 8, buttonBaseX + 6, floorMidY + 2, buttonBaseX - 6, floorMidY + 2, downColor);
     }
 
-    //draw screen for elevator
+    DrawElevatorScreen(st);
+
+    //update cabin position frame by frame
+    int prevFloor = st.floor;
+    int prevY = bottomFloorY - (prevFloor - 1) * FLOOR_HEIGHT;
+    int nextFloor = (currentSimTime < lenSim - 1) ? states[currentSimTime + 1].floor : prevFloor;
+    int nextY = bottomFloorY - (nextFloor - 1) * FLOOR_HEIGHT;
+    double t = double(currentFrame)/FRAMES_PER_STEP;
+    cabinY = (int)(prevY + (nextY - prevY) * t);
+
+    DrawElevatorCabin();
+
+    DrawWaitingPassengers(st);
+
+    DrawOnboardPassengers(st);
+
+    DrawTimeAndProgressBar();
+}
+
+void ECElevatorObserver::DrawElevatorScreen(const ECElevatorState& st)
+{
+    //constants
     int screenWidth = 180;
     int screenHeight = 90;
-    int screenX = view.GetWidth() / 2 - screenWidth - 250;
+    int screenX = view.GetWidth()/2 - screenWidth - 250;
     int screenY = topFloorY + 200;
+
+    //draw outer rectangle border
     view.DrawRectangle(screenX - 3, screenY - 3, screenX + screenWidth + 3, screenY + screenHeight + 3, 3, ECGV_WHITE);
+
+    //draw black inner fill
     view.DrawFilledRectangle(screenX, screenY, screenX + screenWidth, screenY + screenHeight, ECGV_BLACK);
-    int currentFloor = states[currentSimTime].floor;
-    EC_ELEVATOR_DIR direction = states[currentSimTime].dir;
-    if (direction == EC_ELEVATOR_UP)
+
+    //logic for screen's up or down arrow
+    EC_ELEVATOR_DIR direction = st.dir;
+    if (direction == EC_ELEVATOR_UP && upArrowImage)
     {
         al_draw_scaled_bitmap(upArrowImage.get(), 0, 0, al_get_bitmap_width(upArrowImage.get()), al_get_bitmap_height(upArrowImage.get()),
             screenX + 30, screenY + (screenHeight - 40) / 2, 40, 40, 0);
     }
-    else if (direction == EC_ELEVATOR_DOWN)
+    else if (direction == EC_ELEVATOR_DOWN && downArrowImage)
     {
         al_draw_scaled_bitmap(downArrowImage.get(), 0, 0, al_get_bitmap_width(downArrowImage.get()), al_get_bitmap_height(downArrowImage.get()),
             screenX + 30, screenY + (screenHeight - 40) / 2, 40, 40, 0);
@@ -196,76 +219,55 @@ void ECElevatorObserver::DrawElevator()
         view.DrawTextFont(screenX + 60, screenY + (screenHeight / 2) - 30, "-", ECGV_RED, segmentedFont.get());
     }
 
-    std::string floorText = std::to_string(currentFloor);
+    //write curent floor in segmented font
+    std::string floorText = std::to_string(st.floor);
     view.DrawTextFont(screenX + 120, screenY + (screenHeight / 2) - 30, floorText.c_str(), ECGV_RED, segmentedFont.get());
+}
 
-    //updates cabin position frame by frame
-    int prevFloor = states[currentSimTime].floor;
-    int prevY = bottomFloorY - (prevFloor - 1) * floorHeight;
-    int nextFloor = prevFloor;
-    if (currentSimTime < lenSim - 1)
-    {
-        nextFloor = states[currentSimTime + 1].floor;
-    }
-    int nextY = bottomFloorY - (nextFloor - 1) * floorHeight;
-    double t = double(currentFrame) / framesPerStep;
-    cabinY = (int)(prevY + (nextY - prevY) * t);
+void ECElevatorObserver::DrawElevatorCabin()
+{
+    int w = al_get_bitmap_width(elevatorImageCabin.get());
+    int h = al_get_bitmap_height(elevatorImageCabin.get());
 
-    //drawing cabin
-    if (elevatorImageCabin)
-    {
-        int imgWidth = al_get_bitmap_width(elevatorImageCabin.get());
-        int imgHeight = al_get_bitmap_height(elevatorImageCabin.get());
+    int cabinWidth = 100;
+    int cabinHeight = FLOOR_HEIGHT;
 
-        int cabinWidth = (cabinX + 50) - (cabinX - 50);
-        int cabinHeight = floorHeight;
+    al_draw_scaled_bitmap(elevatorImageCabin.get(), 0, 0, w, h, cabinX - 99, cabinY + 1, cabinWidth + 97, cabinHeight - 3, 0);
+    view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 4, ECGV_SILVER);
+    
+}
 
-        al_draw_scaled_bitmap(elevatorImageCabin.get(), 0, 0, imgWidth, imgHeight, cabinX - 99, cabinY + 1, cabinWidth + 97, cabinHeight - 3, 0);
-        view.DrawRectangle(cabinX - 99, cabinY + 1, cabinX - 99 + cabinWidth + 97, cabinY + 1 + cabinHeight - 3, 4, ECGV_SILVER);
-    }
-    else
-    {
-        std::cout << "Failed to draw elevator_cabin.png image!" << std::endl;
-    }
-
-    //get current state at current time
-    const ECElevatorState& st = states[currentSimTime];
-
-    //drawing passengers inside the elevator shaft
-    DrawWaitingPassengers(st);
-
-    //draw cabin passengers
-    int pxStart = cabinX - 100;
-    int pyStart = cabinY + 25;
+void ECElevatorObserver::DrawOnboardPassengers(const ECElevatorState& st)
+{
+    int xStart = cabinX - 100;
+    int yStart = cabinY + 25;
     int manW = al_get_bitmap_width(manImage.get());
     int manH = al_get_bitmap_height(manImage.get());
-    int scaledH = floorHeight / 1.5;
+    int scaledH = FLOOR_HEIGHT / 1.5;
     double scaleFactor = double(scaledH) / double(manH);
     int scaledW = int(manW * scaleFactor);
+
+    //for each onboard passenger
     for (int i = 0; i < st.onboard.size(); i++)
     {
-        auto& reqInfo = st.onboard[i];
-        int px = pxStart + i * (scaledW * 0.5);
-        int py = pyStart;
-        al_draw_scaled_bitmap(manImage.get(), 0, 0, manW, manH, px, py, scaledW, scaledH, 0);
+        int px = xStart + i * (scaledW * 0.5);
+        int py = yStart;
 
-        //view.DrawFilledCircle(px, py, passengerRadius, ECGV_WHITE);
-        std::string dest = std::to_string(reqInfo.destFloor);
-        //view.DrawText(px - 5, py - 5, dest.c_str(), ECGV_WHITE);
+        al_draw_scaled_bitmap(manImage.get(), 0, 0, manW, manH, px, py, scaledW, scaledH, 0); //draw man image
+
+        //draw floor destination for this passenger
+        std::string dest = std::to_string(st.onboard[i].destFloor);
         view.DrawTextFont(px + (scaledW / 2), py + 15, dest.c_str(), ECGV_WHITE, jerseyFont.get());
-
     }
-
-    DrawTimeAndProgressBar();
 }
 
 void ECElevatorObserver::DrawTimeAndProgressBar()
 {
     std::string timeText = "Time: " + std::to_string(currentSimTime);
-    view.DrawText(210, bottomFloorY + floorHeight + 40, timeText.c_str(), ECGV_BLACK);
+    view.DrawText(210, bottomFloorY + FLOOR_HEIGHT + 40, timeText.c_str(), ECGV_BLACK);
 
     int barX = 115;
-    int barY = bottomFloorY + floorHeight + 90;
+    int barY = bottomFloorY + FLOOR_HEIGHT + 90;
     int barHeight = 20;
     int barWidth = 200;
 
@@ -279,31 +281,27 @@ void ECElevatorObserver::DrawWaitingPassengers(const ECElevatorState& st)
 {
     for (int floorNum = 1; floorNum <= numFloors; floorNum++) //for each floor
     {
-        int y = bottomFloorY - (floorNum - 2) * floorHeight; //position to draw person at
+        int y = bottomFloorY - (floorNum - 2) * FLOOR_HEIGHT; //position to draw person at
 
         if (st.waitingMap.count(floorNum) > 0) //if there are ppl to draw
         {            
             int baseX = view.GetWidth() / 2 + 90;
-            int spacing = 10;
             int manW = al_get_bitmap_width(manImage.get());
             int manH = al_get_bitmap_height(manImage.get());
-            int scaledH = floorHeight / 1.5;
+            int scaledH = FLOOR_HEIGHT / 1.5;
             double scaleFactor = double(scaledH) / double(manH);
             int scaledW = int(manW * scaleFactor);
             int count = 0;
 
             for (auto& reqInfo : st.waitingMap.at(floorNum)) //for each person in RequestInfo on this floor
             {
-                bool goingUp = reqInfo.goingUp; //update going up
-                int dest = reqInfo.destFloor; //update where they are going
                 count++;
-
                 int px = baseX + count * (scaledW * 0.5);
                 int py = y - scaledH;
                 
                 al_draw_scaled_bitmap(manImage.get(), 0, 0, manW, manH, px, py, scaledW, scaledH, 0);
 
-                std::string destStr = std::to_string(dest);
+                std::string destStr = std::to_string(reqInfo.destFloor);
                 view.DrawTextFont(px + scaledW/2, py + 15, destStr.c_str(), ECGV_WHITE, jerseyFont.get()); //write underneath where they are going
             }
         }
