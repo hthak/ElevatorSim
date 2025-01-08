@@ -63,6 +63,14 @@ public:
 };
 
 //----------------------------------------------------------------------------------------------------------------------------
+// Structure to hold cooridinates for rectangular buttons
+//----------------------------------------------------------------------------------------------------------------------------
+struct ALLEGRO_RECT
+{
+    float left, top, right, bottom;
+};
+
+//----------------------------------------------------------------------------------------------------------------------------
 // ECElevatorobserver
 // Inherits from ECObserver
 // Frontend Observer that listens for timer events and draws the elevator, passengers, etc. visually
@@ -94,6 +102,12 @@ private:
     void DrawOnboardPassengers(const ECElevatorState& st);
     void DrawElevatorScreen(const ECElevatorState& st);
     void DrawElevatorCabin();
+    void DrawButtons();
+
+    //helper method(s)
+    bool IsInRect(int x, int y, const ALLEGRO_RECT& rect);
+    void PauseAllMusic();
+    void PlayAllMusic();
 
     //constants
     static constexpr int FLOOR_HEIGHT = 100;
@@ -114,6 +128,13 @@ private:
     int currentFrame;
     int currentSimTime;
     const std::vector<ECElevatorState>& states;
+
+    //state button
+    bool musicOn = true;
+
+    //clickable button positioning
+    ALLEGRO_RECT pauseBtnRect = { 20,  20,  100, 60 };
+    ALLEGRO_RECT musicBtnRect = { 20,  70,  100, 110 };
 
     //music shared pointer variables
     std::shared_ptr<ALLEGRO_SAMPLE> backgroundMusic;

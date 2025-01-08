@@ -79,13 +79,12 @@ int main(int argc, char *argv[])
     //use new code to get state at each time step
     const std::vector<ECElevatorState>& allStates = sim.GetAllStates();
 
-    //part 2 code: create view
+    //create view
     ECGraphicViewImp view(1200, 1100);
 
     //use new code to feed states to frontend
     ECElevatorObserver elevator(view, numFloors, allStates, lenSim);    
 
-    ///same code as part 2
     view.Attach(&elevator);
     
     view.Show();

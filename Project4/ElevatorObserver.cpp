@@ -56,19 +56,14 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
 void ECElevatorObserver::Update()
 {
     ECGVEventType evt = view.GetCurrEvent(); //current keyboard event
-    if (evt == ECGV_EV_KEY_UP_SPACE)
+    if (evt == ECGV_EV_TIMER)
     {
-        paused = !paused;
-        view.SetRedraw(true);
-    }
-    if (evt == ECGV_EV_TIMER) {
         if (!paused)
         {
             //if music is not playing, resume where it was paused
-            if (!al_get_sample_instance_playing(backgroundMusicInstance.get()))
+            if (!al_get_sample_instance_playing(backgroundMusicInstance.get()) && musicOn)
             {
-                al_set_sample_instance_position(backgroundMusicInstance.get(), currentBackMusicPos);
-                al_set_sample_instance_playing(backgroundMusicInstance.get(), true);
+                PlayAllMusic();
             }
             
             //advance animation frame
@@ -82,7 +77,7 @@ void ECElevatorObserver::Update()
                     const ECElevatorState& currState = states[currentSimTime + 1];
                     bool wasMoving = (prevState.dir == EC_ELEVATOR_UP || prevState.dir == EC_ELEVATOR_DOWN);
                     bool isStoppedNow = currState.dir == EC_ELEVATOR_STOPPED;
-                    if (wasMoving && isStoppedNow) //only play when stops at a floor
+                    if (wasMoving && isStoppedNow && musicOn) //only play when stops at a floor
                     {
                         al_play_sample_instance(dingSoundInstance.get());
                     }
@@ -104,20 +99,64 @@ void ECElevatorObserver::Update()
         }
         else //paused
         {
-            //paused backgroundMusic so stop music and save time stopped at
-            if (backgroundMusicInstance && al_get_sample_instance_playing(backgroundMusicInstance.get()))
-            {
-                currentBackMusicPos = al_get_sample_instance_position(backgroundMusicInstance.get());
-                al_set_sample_instance_playing(backgroundMusicInstance.get(), false);
-            }
-            //paused dingSound
-            if (dingSoundInstance)
-            {
-                al_set_sample_instance_playing(dingSoundInstance.get(), false);
-            }
+            PauseAllMusic();
         }
         DrawElevator();
     }
+    else if (evt == ECGV_EV_MOUSE_BUTTON_DOWN) //click event heard
+    {
+        int pressX, pressY;
+        view.GetCursorPosition(pressX, pressY);
+        if (IsInRect(pressX, pressY, pauseBtnRect))
+        {
+            paused = !paused;
+            PauseAllMusic();
+            SetRedraw(true);
+        }
+        else if (IsInRect(pressX, pressY, musicBtnRect))
+        {
+            musicOn = !musicOn;
+            if (musicOn)
+            {
+                PlayAllMusic();
+            }
+            else
+            {
+                PauseAllMusic();
+            }
+            SetRedraw(true);
+        }
+    }
+}
+
+void ECElevatorObserver::PauseAllMusic()
+{
+    //stop music and save time stopped at
+    if (backgroundMusicInstance && al_get_sample_instance_playing(backgroundMusicInstance.get()))
+    {
+        currentBackMusicPos = al_get_sample_instance_position(backgroundMusicInstance.get());
+        al_set_sample_instance_playing(backgroundMusicInstance.get(), false);
+    }
+    if (dingSoundInstance) //don't need to save time since really short track
+    {
+        al_set_sample_instance_playing(dingSoundInstance.get(), false);
+    }
+}
+
+void ECElevatorObserver::PlayAllMusic()
+{
+    //play background music where paused
+    al_set_sample_instance_position(backgroundMusicInstance.get(), currentBackMusicPos);
+    al_set_sample_instance_playing(backgroundMusicInstance.get(), true);
+
+    //play ding sound
+    al_play_sample_instance(dingSoundInstance.get());
+
+}
+
+bool ECElevatorObserver::IsInRect(int x, int y, const ALLEGRO_RECT& rect)
+{
+    return (x >= rect.left && y >= rect.top && x <= rect.right && y <= rect.bottom);
 }
 
 //visually draw the elevator
@@ -186,12 +225,33 @@ void ECElevatorObserver::DrawElevator()
     DrawOnboardPassengers(st);
 
     DrawTimeAndProgressBar();
+
+    DrawButtons();
+}
+
+void ECElevatorObserver::DrawButtons()
+{
+    view.DrawFilledRectangle(pauseBtnRect.left, pauseBtnRect.top, pauseBtnRect.right, pauseBtnRect.bottom, ECGV_SILVER);
+    view.DrawRectangle(pauseBtnRect.left, pauseBtnRect.top, pauseBtnRect.right, pauseBtnRect.bottom, 2, ECGV_BLACK);
+
+    const char* labelPause = paused ? "Resume" : "Pause";
+    int midX = (pauseBtnRect.left + pauseBtnRect.right) / 2;
+    int midY = (pauseBtnRect.top + pauseBtnRect.bottom) / 2;
+    view.DrawText(midX, midY - 10, labelPause, ECGV_BLACK);
+
+    view.DrawFilledRectangle(musicBtnRect.left, musicBtnRect.top, musicBtnRect.right, musicBtnRect.bottom, ECGV_SILVER);
+    view.DrawRectangle(musicBtnRect.left, musicBtnRect.top,musicBtnRect.right, musicBtnRect.bottom, 2, ECGV_BLACK);
+
+    const char* labelMusic = musicOn ? "Music On" : "Music Off";
+    int midX2 = (musicBtnRect.left + musicBtnRect.right) / 2;
+    int midY2 = (musicBtnRect.top + musicBtnRect.bottom) / 2;
+    view.DrawText(midX2, midY2 - 10, labelMusic, ECGV_BLACK);
 }
 
 void ECElevatorObserver::DrawElevatorScreen(const ECElevatorState& st)
 {
     //constants
-    int screenWidth = 180;
+    int screenWidth = 130;
     int screenHeight = 90;
     int screenX = view.GetWidth()/2 - screenWidth - 250;
     int screenY = topFloorY + 200;
@@ -207,21 +267,21 @@ void ECElevatorObserver::DrawElevatorScreen(const ECElevatorState& st)
     if (direction == EC_ELEVATOR_UP && upArrowImage)
     {
         al_draw_scaled_bitmap(upArrowImage.get(), 0, 0, al_get_bitmap_width(upArrowImage.get()), al_get_bitmap_height(upArrowImage.get()),
-            screenX + 30, screenY + (screenHeight - 40) / 2, 40, 40, 0);
+            screenX + 20, screenY + (screenHeight - 40) / 2, 40, 40, 0);
     }
     else if (direction == EC_ELEVATOR_DOWN && downArrowImage)
     {
         al_draw_scaled_bitmap(downArrowImage.get(), 0, 0, al_get_bitmap_width(downArrowImage.get()), al_get_bitmap_height(downArrowImage.get()),
-            screenX + 30, screenY + (screenHeight - 40) / 2, 40, 40, 0);
+            screenX + 20, screenY + (screenHeight - 40) / 2, 40, 40, 0);
     }
     else
     {
-        view.DrawTextFont(screenX + 60, screenY + (screenHeight / 2) - 30, "-", ECGV_RED, segmentedFont.get());
+        view.DrawTextFont(screenX + 45, screenY + (screenHeight / 2) - 30, "-", ECGV_RED, segmentedFont.get());
     }
 
     //write curent floor in segmented font
     std::string floorText = std::to_string(st.floor);
-    view.DrawTextFont(screenX + 120, screenY + (screenHeight / 2) - 30, floorText.c_str(), ECGV_RED, segmentedFont.get());
+    view.DrawTextFont(screenX + 100, screenY + (screenHeight / 2) - 30, floorText.c_str(), ECGV_RED, segmentedFont.get());
 }
 
 void ECElevatorObserver::DrawElevatorCabin()

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const float FPS = 8;
+const float FPS = 10;
 
 //***********************************************************
 // Allegro colors

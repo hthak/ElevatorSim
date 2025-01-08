@@ -30,7 +30,7 @@
 // (ii) inside request: passenger now requests to go to a specific floor once inside the elevator
 // (iii) Once the passenger arrives at the floor, this request is considered to be "serviced"
 //
-// two sspecial requests:
+// two special requests:
 // (a) maintenance start: floorSrc=floorDest=-1; put elevator into maintenance 
 // starting at the specified time; elevator starts at the current floor
 // (b) maintenance end: floorSrc=floorDest=0; put elevator back to operation (from the current floor)
@@ -180,7 +180,7 @@ public:
 
     const std::vector<ECElevatorState>& GetallStates() const { return recordedStates; }
 
-    //my methods
+    //helper
     bool anyFloorReq(int const time, int currFloor) const;
     bool anyDirReqs(EC_ELEVATOR_DIR move, int time) const;
     void handleDirectionChange(int time);
@@ -188,7 +188,6 @@ public:
     const std::vector<ECElevatorState>& GetAllStates() const { return recordedStates; }
 
 private:
-    // Your code here
     std::vector<ECElevatorSimRequest>& requests;
     int currFloor;
     int numFloors;
