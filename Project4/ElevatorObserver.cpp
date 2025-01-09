@@ -28,7 +28,7 @@ ECElevatorObserver::ECElevatorObserver(ECGraphicViewImp& viewIn, int numFloors,
     downArrowImage = ResourceFactory::loadBitmap("down_arrow.png");
 
     //create fonts from ResourceFactory
-    jerseyFont = ResourceFactory::loadFont("jersey.ttf", 22);
+    jerseyFont = ResourceFactory::loadFont("jersey.ttf", 27);
     segmentedFont = ResourceFactory::loadFont("segmented.ttf", 60);
     displayFont = ResourceFactory::loadFont("MiguerSans-Regular.ttf", 50);
 
@@ -150,10 +150,6 @@ void ECElevatorObserver::PlayAllMusic()
     //play background music where paused
     al_set_sample_instance_position(backgroundMusicInstance.get(), currentBackMusicPos);
     al_set_sample_instance_playing(backgroundMusicInstance.get(), true);
-
-    //play ding sound
-    al_play_sample_instance(dingSoundInstance.get());
-
 }
 
 bool ECElevatorObserver::IsInRect(int x, int y, const ALLEGRO_RECT& rect)
@@ -325,7 +321,7 @@ void ECElevatorObserver::DrawOnboardPassengers(const ECElevatorState& st)
 void ECElevatorObserver::DrawTimeAndProgressBar()
 {
     std::string timeText = "Time: " + std::to_string(currentSimTime);
-    view.DrawTextFont(270, bottomFloorY - 70, timeText.c_str(), ECGV_WHITE, displayFont.get());
+    view.DrawTextFont(285, bottomFloorY - 70, timeText.c_str(), ECGV_WHITE, displayFont.get());
 
     int barX = 150;
     int barY = bottomFloorY - 100;
@@ -335,7 +331,7 @@ void ECElevatorObserver::DrawTimeAndProgressBar()
     view.DrawRectangle(barX, barY, barX + barWidth, barY + barHeight, 3, ECGV_BLACK);
     double prog = double(currentSimTime) / double(lenSim - 1);
     int filledWidth = int(prog * barWidth);
-    view.DrawFilledRectangle(barX + 1, barY + 2, barX + filledWidth - 2, barY + barHeight - 2, ECGV_OLIVE_GREEN);
+    view.DrawFilledRectangle(barX + 1, barY + 2, barX + filledWidth - 2, barY + barHeight - 2, ECGV_WHITE);
 }
 
 void ECElevatorObserver::DrawWaitingPassengers(const ECElevatorState& st)
