@@ -155,6 +155,8 @@ void ECElevatorSim::UpdateDirectionAtTime(int tm)
         SetCurrDir(EC_ELEVATOR_STOPPED);
         return;
     }
+    if (currDir != EC_ELEVATOR_STOPPED) { return; }
+
     bool upRequests = anyDirReqs(EC_ELEVATOR_UP, tm);
     bool downRequests = anyDirReqs(EC_ELEVATOR_DOWN, tm);
     if (upRequests && downRequests)
