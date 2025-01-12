@@ -2,7 +2,7 @@
 
 _This C++ project utilizes the built-in Allegro library to create a functional elevator simulation with a visual frontend interface connected to backend simulation logic. The simulation smoothly showcases an operational elevator system with realistic features and interfaces._
 
-**FEATURES**
+**FEATURES**\\
   Configurable Design
     - Easily adaptable to any number of floors
     - Created utilizing C++ best practices, leveraging creational and behavioral design patterns for modularity and maintainability
