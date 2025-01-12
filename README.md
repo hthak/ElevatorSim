@@ -1,3 +1,26 @@
-C++ project built using the Allegro library which features backend logic for an elevator with any amount of floors as well as a frontend system which displays the requests, time, progress, passengers, and elevator movement.
-Created using C++ best practices and various creational and behavioral design patterns.
-Developed by Himanshu Thakur. 
+**ELEVATOR SIMULATION PROJECT**
+
+_This C++ project utilizes the built-in Allegro library to create a functional elevator simulation with a visual frontend interface connected to backend simulation logic. The simulation smoothly showcases an operational elevator system with realistic features and interfaces._
+
+**FEATURES**
+  Configurable Design
+    - Easily adaptable to any number of floors
+    - Created utilizing C++ best practices, leveraging creational and behavioral design patterns for modularity and maintainability
+  Interactive Elevator Simulation
+    - Fully functional floor buttons that light up based on floor requests
+    - Passengers dynamically drawn on appropriate floor
+    - Full ability to control timed passenger requests, passenger floor destinations, etc.
+    - 60 fps visually moving elevator that transports passengers between floors
+    - LED-style display showcasing the current floor and current elevator movement direction (up/down/idle)
+    - Real-time progress bar and time display
+    - Ability to pause the simulation and turn off all music
+
+**REQUIREMENTS**
+ - C++ Compiler: Compatible with Visual Studio 2022 or any modern C++ compiler
+ - Allegro Library: Ensure the Allegro 5 library is installed and configured to the project destination
+
+**DEMO**
+_For a quick demonstration, see attached demo.mov file for a quick walkthrough of the project in action_
+
+**AUTHOR**
+Developed by Himanshu Thakur.
