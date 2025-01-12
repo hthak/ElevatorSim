@@ -1,8 +1,5 @@
 //
 //  ECGraphicViewImp.h
-//  
-//
-//  Created by Yufeng Wu on 3/2/22.
 //
 
 //***********************************************************
@@ -69,7 +66,14 @@ enum ECGVColor
     ECGV_YELLOW = 5,    // red + green
     ECGV_PURPLE = 6,    // red+blue
     ECGV_CYAN = 7,      // blue+green,
-    ECGV_NONE = 8,
+    ECGV_LIGHT_BLUE = 8,
+    ECGV_SILVER = 9,
+    ECGV_DARK_GREY = 10,
+    ECGV_OLIVE_GREEN = 11,
+    ECGV_BROWN = 12,
+    ECGV_GREY = 13,
+    ECGV_DARK_GREEN = 14,
+    ECGV_NONE = 15,
     ECGV_NUM_COLORS
 };
 
@@ -138,6 +142,7 @@ public:
     void DrawEllipse(int xcenter, int ycenter, double radiusx, double radiusy, int thickness = 3, ECGVColor color = ECGV_BLACK);
     void DrawFilledEllipse(int xcenter, int ycenter, double radiusx, double radiusy, ECGVColor color = ECGV_BLACK);
     void DrawText(int xcenter, int ycenter, const char* ptext, ECGVColor color = ECGV_BLACK);
+    void DrawTextFont(int xcenter, int ycenter, const char* ptext, ECGVColor color, ALLEGRO_FONT* customFont);
     void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness = 3, ECGVColor color = ECGV_BLACK);
     void DrawFilledTriangle(int x1, int y1, int x2, int y2, int x3, int y3, ECGVColor color = ECGV_BLACK);
 

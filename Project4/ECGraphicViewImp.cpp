@@ -1,8 +1,5 @@
 //
 //  ECGraphicViewImp.cpp
-//  
-//
-//  Created by Yufeng Wu on 3/2/22.
 //
 
 #include "ECGraphicViewImp.h"
@@ -10,25 +7,34 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_ttf.h>
 #include <iostream>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 
 using namespace std;
 
-const float FPS = 12;
+const float FPS = 65;
 
 //***********************************************************
 // Allegro colors
 
 ALLEGRO_COLOR arrayAllegroColors[ECGV_NUM_COLORS] =
 {
-    al_map_rgb_f(0, 0, 0),
-    al_map_rgb_f(255,255,255),
-    al_map_rgb_f(255,0,0),
-    al_map_rgb_f(0,255,0),
-    al_map_rgb_f(0,0,255),
-    al_map_rgb_f(255,255,0),
-    al_map_rgb_f(255,0,255),
-    al_map_rgb_f(0,255,255)
+    al_map_rgb(0, 0, 0),
+    al_map_rgb(255,255,255),
+    al_map_rgb(255,0,0),
+    al_map_rgb(0,255,0),
+    al_map_rgb(0,0,255),
+    al_map_rgb(255,255,0),
+    al_map_rgb(255,0,255),
+    al_map_rgb(0,255,255),
+    al_map_rgb(173, 216, 230),
+    al_map_rgb(210, 210, 210),
+    al_map_rgb(68, 68, 68),
+    al_map_rgb(107,142,35),
+    al_map_rgb(150, 75, 0),
+    al_map_rgb(105,105,105),
+    al_map_rgb(48,69,41)
 };
 
 //***********************************************************
@@ -167,6 +173,27 @@ void ECGraphicViewImp::Init()
         cout << "failed to create timer!\n";
         exit(-1);
     }
+    if (!al_init_image_addon())
+    {
+        cout << "failed to create Allegro image addon!\n";
+        exit(-1);
+    }
+    if (!al_install_audio())
+    {
+        cout << "failed to install Allegro audio system!" << endl;
+        exit(-1);
+    }
+    if (!al_init_acodec_addon())
+    {
+        cout << "failed to initialize audio codecs!" << endl;
+        exit(-1);
+    }
+    if (!al_reserve_samples(2))
+    {
+        cout << "failed to reserve audio samples!" << endl;
+        exit(-1);
+    }
+
     // create the display
     display = al_create_display(widthView, heightView);
     if (!display) {
@@ -375,6 +402,19 @@ void ECGraphicViewImp::DrawText(int xcenter, int ycenter, const char* ptext, ECG
 {
     al_draw_text(this->fontDef, arrayAllegroColors[color], xcenter, ycenter, ALLEGRO_ALIGN_CENTER, ptext);
 }
+
+void ECGraphicViewImp::DrawTextFont(int xcenter, int ycenter, const char* ptext, ECGVColor color, ALLEGRO_FONT* customFont)
+{
+    if (!customFont)
+    {
+        al_draw_text(this->fontDef, arrayAllegroColors[color], xcenter, ycenter, ALLEGRO_ALIGN_CENTER, ptext);
+    }
+    else
+    {
+        al_draw_text(customFont, arrayAllegroColors[color], xcenter, ycenter, ALLEGRO_ALIGN_CENTER, ptext);
+    }
+}
+
 
 void ECGraphicViewImp::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness, ECGVColor color) {
     al_draw_triangle(x1, y1, x2, y2, x3, y3, arrayAllegroColors[color], thickness);

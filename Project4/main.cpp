@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     inFile.close(); //close file
 
     //sorting requests by time
-    std::sort(requests.begin(), requests.end(), [](const ECElevatorSimRequest& a, const ECElevatorSimRequest& b) {
+    std::sort(requests.begin(), requests.end(), [](const ECElevatorSimRequest& a, const ECElevatorSimRequest& b){
         return a.GetTime() < b.GetTime();
         });
 
@@ -79,13 +79,12 @@ int main(int argc, char *argv[])
     //use new code to get state at each time step
     const std::vector<ECElevatorState>& allStates = sim.GetAllStates();
 
-    //part 2 code: create view
-    ECGraphicViewImp view(1200, 1000);
+    //create view
+    ECGraphicViewImp view(1200, 1100);
 
     //use new code to feed states to frontend
-    ECElevatorObserver elevator(view, numFloors, allStates, lenSim);
+    ECElevatorObserver elevator(view, numFloors, allStates, lenSim);    
 
-    ///same code as part 2
     view.Attach(&elevator);
     
     view.Show();

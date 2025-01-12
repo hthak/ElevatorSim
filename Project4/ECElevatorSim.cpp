@@ -1,9 +1,6 @@
 //
 //  ECElevatorSim.cpp
-//  
 //
-//  Created by Yufeng Wu on 6/27/23.
-//  Elevator simulation
 
 
 #include "ECElevatorSim.h"
@@ -38,9 +35,9 @@ void ECElevatorSim::Simulate(int lenSim)
 {
     for (auto tm = 0; tm < lenSim; tm++) //simulate time
     {
+        RecordState(tm);
+        
         UpdateDirectionAtTime(tm);
-
-        //ECElevatorSimRequest fakeReq(0, 0, 0);
 
         //create approproate class object and invoke method to update floor
         if (currDir == EC_ELEVATOR_DOWN)
@@ -62,7 +59,7 @@ void ECElevatorSim::Simulate(int lenSim)
                 stop->ChangeDirection(reqs, currDir, currFloor, tm);
             }
         }
-        RecordState(tm);
+        
         prevMove = GetCurrDir();
     }
 }
@@ -156,11 +153,36 @@ void ECElevatorSim::UpdateDirectionAtTime(int tm)
     if (anyFloorReq(tm, currFloor))
     {
         SetCurrDir(EC_ELEVATOR_STOPPED);
+        return;
     }
-    else if (anyDirReqs(prevMove, tm))
+    if (currDir != EC_ELEVATOR_STOPPED) { return; } //if in motion, don't change direction
+
+    bool upRequests = anyDirReqs(EC_ELEVATOR_UP, tm);
+    bool downRequests = anyDirReqs(EC_ELEVATOR_DOWN, tm);
+    if (upRequests && downRequests)
+    {
+        int nearestFloor = findClosestRequestFloor(currFloor, tm);
+        if (nearestFloor > currFloor)
+        {
+            SetCurrDir(EC_ELEVATOR_UP);
+        }
+        else if (nearestFloor < currFloor)
+        {
+            SetCurrDir(EC_ELEVATOR_DOWN);
+        }
+        else
+        {
+            SetCurrDir(EC_ELEVATOR_STOPPED);
+        }
+    }
+    else if (upRequests)
     {
         // Continue moving in the previous direction if requests exist that way
-        SetCurrDir(prevMove);
+        SetCurrDir(EC_ELEVATOR_UP);
+    }
+    else if (downRequests)
+    {
+        SetCurrDir(EC_ELEVATOR_DOWN);
     }
     else
     {
@@ -180,4 +202,28 @@ void ECElevatorSim::UpdateElevatorMovement(ECElevatorMovement* movement, int tm)
     {
         movement->ChangeDirection(fakeReq, currDir, currFloor, tm);
     }
+}
+
+int ECElevatorSim::findClosestRequestFloor(int currFloor, int time) const
+{
+    int bestFloor = currFloor;
+    int bestDist = 999999;
+
+    for (auto& req : requests)
+    {
+        if (!req.IsServiced() && req.GetTime() <= time)
+        {
+            int floorNeeded = req.GetRequestedFloor();
+            if (floorNeeded >= 1 && floorNeeded <= numFloors && floorNeeded != -1)
+            {
+                int dist = std::abs(floorNeeded - currFloor);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    bestFloor = floorNeeded;
+                }
+            }
+        }
+    }
+    return bestFloor;
 }
