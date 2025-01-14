@@ -23,7 +23,7 @@ _This C++ project utilizes the built-in Allegro library to create a functional e
 
 **DEMO**
 
-_For a quick demonstration, see attached demo.mov file for a quick walkthrough of the project in action._
+_For a quick demonstration, see attached demo.mp4 file for a quick walkthrough of the project in action._
 
 **AUTHOR**
 
